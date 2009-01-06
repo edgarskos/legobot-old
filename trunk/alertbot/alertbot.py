@@ -28,14 +28,36 @@ sys.path.append(os.environ['HOME'] + '/alertbot')
 log = open("AlertsBatch.log", "r")
 logtext = log.read()
 log.close()
-
+def finderrors(logtext):
+	if re.search(r'\[main\] ERROR - (.*)at', logtext):
+		error = re.findall('\[main\] ERROR - (.*)at', logtext)
+		return str(error[0]) + '...'
+	else:
+		return 'No error occurred.'
+errors = finderrors(logtext)
+numofsubscrip=re.findall(' \[main\] INFO - (.*) subscriptions read from Category:ArticleAlertbot subscriptions', logtext)
+subscript = numofsubscrip[0] + ' subscriptions were read from [[Category:ArticleAlertbot subscriptions]]
+writenum = re.findall('\[main\] INFO - WRITE:', logtext)
+write = str(len(writenum)) + ' edits were made during the last run.'
+skipnum = re.findall('\[main\] INFO - Job is cached, skipping: REPLACE:', logtext)
+skip = str(len(skipnum)) + ' reports were cached and not updated.'
 content = """<h2>Last run</h2>
 <ul>
 <li>Alertbot last ran at %s</li>
 </ul>
-<h3>Errors</h3>
+<h3>Error(s)</h3>
 <ul>
-
-"""
-header = monobook.header('Alertbot Status')
-body = monobook.body(content)
+<li>%s</li>
+</ul>
+<h2>Statistics</h2>
+<ul>
+<li>%s</li>
+<li>%s</li>
+<li>%s</li>
+</ul>
+""" %(stamp, errors, subscript, write, skip)
+print monobook.header('Alertbot Status')
+print monobook.body(content)
+print monobook.navbar()
+print monobook.replagtable()
+print monobook.footer()
