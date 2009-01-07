@@ -7,6 +7,7 @@
 
 __version__ = '$Id: $'
 
+Note: Still in development stage
 """
 import urllib, re, time
 import os, sys
@@ -39,6 +40,9 @@ def fixdescrip(des):
 	des = re.compile(r'was stated to be made', re.IGNORECASE).sub(r'was made', des)
 	if re.search('category', des, re.I):
 		des = re.compile(r'\{\{subst:Unc\}\} <!\-\- Remove this line once you have added categories \-\->', re.IGNORECASE).sub(r'', des)	
+	if re.search(':en:category:', des, re.I):
+		print 'NO CATEGORY FOUND!'
+		return False
 	return des
 #Get the description from CH
 def ch2(name):
@@ -58,6 +62,8 @@ def ch2(name):
 	descrip = ch2text.split('<textarea '+tablock+'>')[1].split('</textarea>')[0]
 	print 'Recieved info from CommonsHelper about %s:' %(delink(name))
 	descrip = fixdescrip(descrip)
+	if descrip == False:
+		return False
 	print descrip
 	time.sleep(15)
 	return descrip
@@ -65,6 +71,8 @@ def ch2(name):
 #Upload the image
 def upload(name):
 	descrip = ch2(name)
+	if descrip == False:
+		return False
 	print 'Uploading %s to commons:commons.' %(delink(name))
 	#wikipedia.showDiff('', descrip)
 	time.sleep(20)
@@ -78,11 +86,15 @@ def ncd(name):
 	page = wikipedia.Page(wikien, name)
 	wikitext = page.get()
 	state0 = wikitext
-	moveToCommonsTemplate = [r'Commons ok', r'Copy to Wikimedia Commons', r'Move to commons', r'Movetocommons', r'To commons', r'Copy to Wikimedia Commons by BotMultichill']
-	for moveTemplate in moveToCommonsTemplate:
-		wikitext = re.sub(r'\{\{' + moveTemplate + r'\}\}', u'', wikitext)
-	wikitext = '{{subst:ncd}}\n' + wikitext
-	print 'about to ncd'
+	wikitext = re.compile(r'\{\{Commons ok\}\}', re.IGNORECASE).sub(r'', wikitext)
+	wikitext = re.compile(r'\{\{Copy to Wikimedia Commons\}\}', re.IGNORECASE).sub(r'', wikitext)
+	wikitext = re.compile(r'\{\{Move to commons\}\}', re.IGNORECASE).sub(r'', wikitext)
+	wikitext = re.compile(r'\{\{To commons\}\}', re.IGNORECASE).sub(r'', wikitext)
+	wikitext= re.compile(r'\{\{Copy to Wikimedia Commons by BotMultichill\}\}', re.IGNORECASE).sub(r'', wikitext)
+	if '{{Now' in wikitext:
+		print '{{subst:ncd}} already added, will only remove.'	
+	else:
+		wikitext = '{{subst:ncd}}\n' + wikitext
 	wikipedia.showDiff(state0, wikitext)
 	time.sleep(15)
 	page.put(wikitext, u'File is now available on Wikimedia Commons.')
@@ -92,11 +104,12 @@ def moveimage(name):
 	name = re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', name)
 	name = wikipedia.ImagePage(wikien, name)
 	if wikipedia.Page(commons, delink(name)).exists():
-		print 'pre ncd'
-		print delink(name)
+		print '%s is already on the commons.' %(delink(name))
 		ncd(name)
 		return
-	upload(name)
+	uploadres = upload(name)
+	if uploadres == False:
+		return False
 	ncd(page)
 
 
