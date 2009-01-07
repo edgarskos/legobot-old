@@ -43,6 +43,9 @@ def fixdescrip(des):
 	if re.search(':en:category:', des, re.I):
 		print 'NO CATEGORY FOUND!'
 		return False
+	if re.search('subst:Unc', des, re.I):
+		print 'Uncategorized'
+		return False
 	return des
 #Get the description from CH
 def ch2(name):
@@ -77,8 +80,19 @@ def upload(name):
 	#wikipedia.showDiff('', descrip)
 	time.sleep(20)
 	bot = UploadRobot(name.fileUrl(), description=descrip, useFilename=name.fileUrl(), keepFilename=True, verifyDescription=False, targetSite = commons)
-	bot.run()
-	print '%s was uploaded to commons:commons.' %(delink(name))
+	try:
+		bot.run()
+		print '%s was uploaded to commons:commons.' %(delink(name))
+		
+	except:
+		log = open('ErrorLog.txt', 'r')
+		logtext = log.read()
+		log.close()
+		log = open('ErrorLog.txt', 'w')
+		print 'An error occured while trying to upload %s' %(str(name))
+		log.write(logtext + '\nAn error occured while trying to upload %s' %(str(name)))
+		log.close()
+		return False
 #Edit enwiki page to reflect movement
 
 def ncd(name):
@@ -110,7 +124,7 @@ def moveimage(name):
 	uploadres = upload(name)
 	if uploadres == False:
 		return False
-	ncd(page)
+	ncd(name)
 
 
 
@@ -124,8 +138,11 @@ def findimages():
 #	category = catlib.Category(wikien, 'Copy to Wikimedia Commons')
 #	gen = pagegenerators.CategorizedPageGenerator(category, recurse=True)
 	for page in gen:
-		print page
-		moveimage(page)
+		if page.namespace() == 6:
+			print page
+			moveimage(page)
+		else:
+			print '%s is not in the image namespace.' %(str(page))
 if __name__ == "__main__":
 	try:
 		findimages()
