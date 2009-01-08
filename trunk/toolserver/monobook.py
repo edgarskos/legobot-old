@@ -1,10 +1,11 @@
 #!usr/bin/env python
 def header(title):
-	print "Content-Type: text/html"
-	print """\
+#	print "Content-Type: text/html\n"
+	x= """\
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">"""
-	print """<head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">\n"""
+	y= """\n<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <title>"""+title+"""</title>
 <style type="text/css">
 <!--/* <![CDATA[ */
@@ -18,6 +19,7 @@ td { vertical-align: top; }
 </style>
 </head>
 """
+	return x+y
 
 def getans(res):
 	for row in res:
@@ -32,11 +34,11 @@ def getcolor(num):
 	else:
 		return (colors['green'], str(num) + 's')
 
-def replagtable():
+def replagtable(repmess):
 	import MySQLdb
 	dbs1 = MySQLdb.connect(db='enwiki_p', host="sql-s1", read_default_file="/home/legoktm/.my.cnf")
 	dbs2 = MySQLdb.connect(db='dewiki_p', host="sql-s2", read_default_file="/home/legoktm/.my.cnf")
-	dbs3 = MySQLdb.connect(db='metawiki_p', host="sql-s3", read_default_file="/home/legoktm/.my.cnf")
+	dbs3 = MySQLdb.connect(db='frwiki_p', host="sql-s3", read_default_file="/home/legoktm/.my.cnf")
 	cur1 = dbs1.cursor()
 	cur2 = dbs2.cursor()
 	cur3 = dbs3.cursor()
@@ -52,21 +54,23 @@ def replagtable():
 	set1 = getcolor(ans1)
 	set2 = getcolor(ans2)
 	set3 = getcolor(ans3)
-	print "<tr style='background-color: "+set1[0]+"'><td style='width: 25%; padding-left: 1em;'>s1</td><td>"+set1[1]+"</td></tr>"
-	print "<tr style='background-color: "+set2[0]+"'><td style='width: 25%; padding-left: 1em;'>s2</td><td>"+set2[1]+"</td></tr>"
-	print "<tr style='background-color: "+set3[0]+"'><td style='width: 25%; padding-left: 1em;'>s3</td><td>"+set3[1]+"</td></tr>"
-	print '</table>'
-	print '</div></div>'
-	print '</div></div>'
-	
-	
+	y= "\n<div class='portlet' id='p-status'><h5>%s</h5><div class='pBody'>" %(repmess)
+	z= '\n<table style="width: 100%; border-collapse: collapse;">\n'
+	a= "\n<tr style='background-color: "+set1[0]+"'><td style='width: 25%; padding-left: 1em;'>s1</td><td>"+set1[1]+"</td></tr>"
+	b= "\n<tr style='background-color: "+set2[0]+"'><td style='width: 25%; padding-left: 1em;'>s2</td><td>"+set2[1]+"</td></tr>"
+	c= "\n<tr style='background-color: "+set3[0]+"'><td style='width: 25%; padding-left: 1em;'>s3</td><td>"+set3[1]+"</td></tr>"
+	d= '\n</table>'
+	e= '\n</div></div>'
+	f= '\n</div></div>'
+	return y+z+a+b+c+d+e+f
 	
 def body(content):
-	print """<body class="mediawiki"><div id="globalWrapper"><div id="column-content"><div id="content">"""
-	print content
-
-def navbar():
-	print """</div></div><div id="column-one">
+	a= """\n<body class="mediawiki"><div id="globalWrapper"><div id="column-content"><div id="content">\n"""
+	b= content
+	c= '\n</div></div>\n'
+	return a+b+c
+def navbar(replagmessage = 'status'):
+	a= """<div id="column-one">
 <div class="portlet" id="p-logo"><a style="background-image: url(http://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Wikimedia_Community_Logo-Toolserver.svg/135px-Wikimedia_Community_Logo-Toolserver.svg.png);" href="http://toolserver.org/~legoktm/" title="Home"></a></div>
 <div class='portlet' id='p-navigation'><h5>navigation</h5><div class='pBody'>
 <ul>
@@ -75,13 +79,12 @@ def navbar():
 <li><a href="http://code.google.com/p/legobot/source/list">Subversion</a></li>
 </ul>
 </div></div>
-<div class='portlet' id='p-status'><h5>status</h5><div class='pBody'>
 
-<table style="width: 100%; border-collapse: collapse;">
 """
-	replagtable()
+	b= replagtable(replagmessage)
+	return a+b
 def footer():
-	print """<table id="footer" style="text-align: left; clear:both;" width="100%"><tr><td>
+	x= """<table id="footer" style="text-align: left; clear:both;" width="100%"><tr><td>
 <a href="http://tools.wikimedia.de/"><img src="http://tools.wikimedia.de/images/wikimedia-toolserver-button.png" alt="Toolserver project" /></a>
 <a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Strict" height="31" width="88" /></a>
 <a href="http://wikimediafoundation.org/wiki/Fundraising?s=cl-Wikipedia-free-mini-button.png"><img src="http://upload.wikimedia.org/wikipedia/meta/6/66/Wikipedia-free-mini-button.png" alt="Wikipedia... keep it free." /></a>
@@ -89,3 +92,4 @@ def footer():
 </body>
 </html>
 """
+	return x
