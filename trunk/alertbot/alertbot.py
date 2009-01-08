@@ -1,5 +1,7 @@
 #!usr/bin/env python
 import time, sys, os, re
+import MySQLdb
+sys.path.append('/home/legoktm/public_html/cgi-bin/')
 import monobook
 cur = time.localtime()
 months = {
@@ -24,8 +26,8 @@ hour = cur[3]
 min = cur[4]
 sec = cur[5]
 stamp = month+' '+str(day)+ ', '+str(year)+' at '+str(hour)+':'+str(min)+':'+str(sec)
-sys.path.append(os.environ['HOME'] + '/alertbot')
-log = open("AlertsBatch.log", "r")
+#sys.path.append('/home/legoktm/public_html/cgi-bin')
+log = open('/home/legoktm/alertbot/AlertsBatch.log', 'r')
 logtext = log.read()
 log.close()
 def finderrors(logtext):
@@ -36,7 +38,7 @@ def finderrors(logtext):
 		return 'No error occurred.'
 errors = finderrors(logtext)
 numofsubscrip=re.findall(' \[main\] INFO - (.*) subscriptions read from Category:ArticleAlertbot subscriptions', logtext)
-subscript = numofsubscrip[0] + ' subscriptions were read from [[Category:ArticleAlertbot subscriptions]]
+subscript = numofsubscrip[0] + ' subscriptions were read from [[Category:ArticleAlertbot subscriptions]].'
 writenum = re.findall('\[main\] INFO - WRITE:', logtext)
 write = str(len(writenum)) + ' edits were made during the last run.'
 skipnum = re.findall('\[main\] INFO - Job is cached, skipping: REPLACE:', logtext)
@@ -56,8 +58,14 @@ content = """<h2>Last run</h2>
 <li>%s</li>
 </ul>
 """ %(stamp, errors, subscript, write, skip)
-print monobook.header('Alertbot Status')
-print monobook.body(content)
-print monobook.navbar()
-print monobook.replagtable()
-print monobook.footer()
+
+#content to be put in the page
+title = monobook.header('Alertbot status')
+body = monobook.body(content)
+navbar = monobook.navbar('status at run')
+footer = monobook.footer()
+fullcontent = str(title)+str(body)+str(navbar)+str(footer)
+print fullcontent
+htmlpage = open('/home/legoktm/public_html/alertbot.html', 'w')
+htmlpage.write(fullcontent)
+htmlpage.close()
