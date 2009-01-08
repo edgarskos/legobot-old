@@ -20,7 +20,7 @@ Pagegenerator options:
 
 import re, sys, time
 import os
-sys.path.append(os.environ['HOME'] + '/stuffs/pywiki/legobot2')
+sys.path.append('/home/legoktm/legobot2')
 import wikipedia, pagegenerators, catlib
 
 # Define global constants
@@ -29,7 +29,7 @@ writeDelay = 60 # seconds
 
 
 def process_article(page):
-		wikitext = page.get()
+		wikitext = state1 = edmsgstate = page.get()
 		
 		# Fix Casing (Reduces the number of possible expressions)
 		wikitext = re.compile(r'\{\{\s*(template:|)fact', re.IGNORECASE).sub(r'{{Fact', wikitext)
@@ -52,11 +52,11 @@ def process_article(page):
 		wikitext = re.compile(r'\{\{\s*unreferenced\}\}', re.IGNORECASE).sub(r'{{Unreferenced|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 		wikitext = re.compile(r'\{\{\s*importance\}\}', re.IGNORECASE).sub(r'{{importance|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 		wikitext = re.compile(r'\{\{\s*Expand\}\}', re.IGNORECASE).sub(r'{{Expand|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
-		wikitext = re.compile(r'\{\{\s*merge(.*?)\}\}', re.IGNORECASE).sub(r'{{Merge\\1|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
+#		wikitext = re.compile(r'\{\{\s*merge(.*?)\}\}', re.IGNORECASE).sub(r'{{Merge\\1|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 		wikitext = re.compile(r'\{\{\s*copyedit\}\}', re.IGNORECASE).sub(r'{{Copyedit|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 		wikitext = re.compile(r'\{\{\s*refimprove\}\}', re.IGNORECASE).sub(r'{{Refimprove|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 		EditMsg = "Date maintenance tags"
-		if page.get() != state0:
+		if edmsgstate != state0:
 			EditMsg = EditMsg + " and general fixes"
 		
 		
@@ -67,6 +67,7 @@ def process_article(page):
 			try:
 				print 'Editing ' + str(page)
 				wikipedia.output(u'WRITE:	Adding %s bytes.' % str(len(wikitext)-len(state0)))
+				wikipedia.showDiff(state1, wikitext)
 				page.put(wikitext)
 			except KeyboardInterrupt:
 				wikipedia.stopme()
@@ -81,7 +82,8 @@ def docat(cat2):
 	gen = pagegenerators.CategorizedPageGenerator(cat)
 	for page in gen:
 		if page.namespace() != 2 or page.namespace() != 3 or page.namespace() != 14:
-			process_article(page)
+			if page.namespace() == 0:
+				process_article(page)
 		else:
 			print 'Skipping %s because it is not in the mainspace' %(str(page))
 	print 'Done with Category:%s' %(cat2)
