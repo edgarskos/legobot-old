@@ -1,6 +1,5 @@
 #!usr/bin/env python
 import time, sys, os, re
-import MySQLdb
 sys.path.append('/home/legoktm/public_html/cgi-bin/')
 import monobook
 cur = time.localtime()
@@ -30,6 +29,9 @@ stamp = month+' '+str(day)+ ', '+str(year)+' at '+str(hour)+':'+str(min)+':'+str
 log = open('/home/legoktm/alertbot/AlertsBatch.log', 'r')
 logtext = log.read()
 log.close()
+rs = re.findall('(.*)-(.*)-(.*) (.*),(.*) \[main\] INFO - Batch job completed; exit code 0', logtext)[0]
+runstamptext = months[str(int(rs[1]))]+' '+rs[2]+ ', '+rs[0]+' at '+rs[3]+':'+rs[4]
+
 def finderrors(logtext):
 	if re.search(r'\[main\] ERROR - (.*)at', logtext):
 		error = re.findall('\[main\] ERROR - (.*)at', logtext)
@@ -57,7 +59,8 @@ content = """<h2>Last run</h2>
 <li>%s</li>
 <li>%s</li>
 </ul>
-""" %(stamp, errors, subscript, write, skip)
+<small>Report generated at %s</small>
+""" %(runstamptext, errors, subscript, write, skip, stamp)
 
 #content to be put in the page
 title = monobook.header('Alertbot status')
