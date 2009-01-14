@@ -30,9 +30,16 @@ def getans(res):
 def getcolor(num):
 	colors = {'red':'#FF0000', 'green':'#a5ffbb'}
 	if int(num) >= 600:
-		return (colors['red'], str(num) + 's')
+		return (colors['red'], str(num))
 	else:
-		return (colors['green'], str(num) + 's')
+		return (colors['green'], str(num))
+def convert_timestamp(seconds):
+	seconds = int(seconds)
+	hours = seconds / 3600
+	seconds = seconds % 3600
+	minutes = seconds / 60
+	seconds = seconds % 60
+	return '%sh %sm %ss' % (hours, minutes, seconds)
 
 def replagtable(repmess):
 	import MySQLdb
@@ -56,9 +63,9 @@ def replagtable(repmess):
 	set3 = getcolor(ans3)
 	y= "\n<div class='portlet' id='p-status'><h5>%s</h5><div class='pBody'>" %(repmess)
 	z= '\n<table style="width: 100%; border-collapse: collapse;">\n'
-	a= "\n<tr style='background-color: "+set1[0]+"'><td style='width: 25%; padding-left: 1em;'>s1</td><td>"+set1[1]+"</td></tr>"
-	b= "\n<tr style='background-color: "+set2[0]+"'><td style='width: 25%; padding-left: 1em;'>s2</td><td>"+set2[1]+"</td></tr>"
-	c= "\n<tr style='background-color: "+set3[0]+"'><td style='width: 25%; padding-left: 1em;'>s3</td><td>"+set3[1]+"</td></tr>"
+	a= "\n<tr style='background-color: "+set1[0]+"'><td style='width: 25%; padding-left: 1em;'>s1</td><td>"+convert_timestamp(set1[1])+"</td></tr>"
+	b= "\n<tr style='background-color: "+set2[0]+"'><td style='width: 25%; padding-left: 1em;'>s2</td><td>"+convert_timestamp(set2[1])+"</td></tr>"
+	c= "\n<tr style='background-color: "+set3[0]+"'><td style='width: 25%; padding-left: 1em;'>s3</td><td>"+convert_timestamp(set3[1])+"</td></tr>"
 	d= '\n</table>'
 	e= '\n</div></div>'
 	f= '\n</div></div>'
