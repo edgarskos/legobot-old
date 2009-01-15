@@ -1,120 +1,124 @@
-#!usr/bin/python
-import re, getpass
-import urllib, urllib2, time
-import userconfig
+#!usr/bin/env python
 """
 Custom library for interfacing with MediaWiki through API
+
+Released under the MIT License
+(C) Legoktm 2008-2009
+See COPYING for full License
 """
+import urllib2, urllib, re, time, getpass
+import config
+import simplejson, sys
 
-def query(wiki, params, debug=False, format = 'json'):
-	apipath = 'http://%s.org/w/api.php' %(wiki)
-	params['format'] = format
-	params = urllib.urlencode(params)
-#	print params
-#	time.sleep(5)
-	req = urllib2.Request(apipath, params)
-#	print req
-	response = urllib2.urlopen(req)
-#	print response
-#	time.sleep(5)
-	text = response.read()
-	url = urllib.urlopen(apipath, params)
-	text = url.read()
-	url.close()
-	if debug:
-		print text
-	return text
+class API:
+	
+	def __init__(self, params, write = False, wiki = config.wiki):
 
-def login(wiki, username):
-	password = getpass.getpass('API Login password: ')
-	params = {
-		'action' : 'login',
-		'lgname' : username,
-		'lgpassword' : password,
-	}
-	print
-	res = query(wiki, params, debug=True)
-	resd = re.findall('"result":"(.*)","lguserid":"(.*)","lgusername":"(.*)","lgtoken":(.*)","cookieprefix":"(.*)","sessionid":"(.*)"\}\}', res)
-	try:
-		resd = resd[0]
-	except IndexError:
-		print 'Login failed.'
-		quit()	
+		self.params = params
+		self.params['format'] = 'json'
+		self.encodeparams = urllib.urlencode(self.params)
+		self.write = write
+		self.username = config.username
+		self.wiki = wiki
+		if write and not self.checklogin:
+			try:
+				self.password = config.password
+			except:
+				self.password = getpass.getpass('API Login Password')
 
-	resultdict = {
-		'result':resd[0],
-		'userid':resd[1],
-		'username':resd[2],
-		'token':resd[3],
-		'prefix':resd[4],
-		'sessionid':resd[5],
-	}
-	print resultdict
-
-	if username != resultdict['username']:
-		print 'ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ...'
-		print 'Somehow... logged in as a different user!!'
-		print 'Now logging out...'
-		paramslgut = {
-			'action' : 'logout',
+		self.headers = {
+			"Content-type": "application/x-www-form-urlencoded",
+			"User-agent": self.username,
+			"Content-length": len(self.encodeparams),
 		}
-		query(wiki, paramslgut)
-		quit()
-	return resultdict
+		
+		self.response = False
+		self.request = urllib2.Request(config.apipath %(self.wiki), self.encodeparams, self.headers)
 
-def get(wiki, page, format = 'dict'):
-	params = {
-		'action':'query',
-		'prop':'revisions',
-		'titles':page,
-		'rvprop':'content',
-	}
-	res = query(wiki, params)
-	resd = re.findall('"pageid":(.*),"ns":(.*),"title":"(.*)","revisions"', res)
-#	print resd
-	content = re.findall('"revisions":\[{"\*":"(.*)"\}\]\}\}\}\}', res)
-	rdict = {
-		'content':content,
-		'pageid':resd[0][0],
-		'pagename':resd[0][2],
-		'ns':resd[0][1]
-	}
-	if format == 'dict':
-		return rdict
-	else:
-		return content
+	def query(self):
+		try:
+			response = urllib2.urlopen(self.request)
+		except urllib2.URLError:
+			print 'Cannot connect to %s.' %(config.apipath)
+			print 'Please check your internet connection or check if Wikimedia is down.'
+			sys.exit()
+		text = response.read()
+		newtext = simplejson.loads(text)
+		return newtext
 
-def namespace(wiki, page):
-	params = {
-		'action':'query',
-		'titles':page,
-		'prop':'info',
-	}
-	res = query(wiki, params)
-#	print res
-	resd = re.findall(',"ns":(.*),"title":"', res)
-	resd = int(resd[0])
-#	print resd
-	return resd
-def isredirect(wiki, page):
-	params = {
-		'action':'query',
-		'titles':page,
-		'prop':'info',
-	}
-	res = query(wiki, params)
-	if re.search('"redirect":""', res, re.I):
-		return True
-	else:
-		return False
-def lastedit(wiki, page, prnt = False):
+		
+class Page:
+	
+	def __init__(self, page):
+		self.page = page
+	#INTERNAL OPERATION, PLEASE DON'T USE
+	def __basicinfo(self):
+		params = {
+			'action':'query',
+			'prop':'info',
+			'titles':self.page,
+		}
+		
+		res = API(params).query()
+		id = res['query']['pages'].keys()
+		dict = res['query']['pages'][id]
+		return dict
+	def get(self):
 		params = {
 			'action':'query',
 			'prop':'revisions',
-			'titles':page,
+			'titles':self.page,
+			'rvprop':'content',
+		}
+		res = API(params).query()
+		id = self.__basicinfo()['pageid']
+		content = res['query']['pages'][id]['revisions'][0]['*']
+
+		return content.encode('utf-8')
+
+	def put(self, newtext, summary, token = False):
+		#get the token
+		if token:
+			self.token = token
+		if not self.token:
+			paramstoken = {
+				'action':'query',
+				'prop':'info',
+				'intoken':'edit',
+				'titles':self.page,
+			}
+			querytoken = API(paramstoken).query()
+			key = querytoken['query']['pages'].keys()[0]
+			token = querytoken['query']['pages'][key]['edittoken']
+			self.token = token
+		#do the edit
+		putparams = {
+		}
+		
+	def titlewonamespace(self, ns=False):
+		if not ns:
+			ns = Page(self.page).namespace()
+		else:
+			ns = int(ns)
+		if ns == 0:
+			return self.page
+		else:
+			return self.page.split(':')[1]
+	def namespace(self, force = False):
+		if self.ns and not force:
+			return self.ns
+		query = self.__basicinfo()
+		resd = query['ns']
+		self.ns = resd
+		return self.ns
+	def lastedit(self, prnt = False):
+		params = {
+			'action':'query',
+			'prop':'revisions',
+			'titles':self.page,
 			'rvprop':'user|comment',
 		}
-		res = query(wiki, params)
+		res = API(params).query()
 		resd = re.findall(',"revisions":\[\{"user":"(.*)","comment":"(.*)"\}\]\}\}\}\}', res)
 #		print resd
 		ret = {
@@ -124,36 +128,106 @@ def lastedit(wiki, page, prnt = False):
 		if prnt:
 			print 'The last edit on %s was made by: %s with the comment of: %s.' %(page, resd[0][0], resd[0][1])
 		return ret
-def getcatmem(wiki, page, limit = 500):
-	if userconfig.bot:
-		limit = 5000
-	if not re.search('Category:(.*)',page, re.I):
-		page = 'Category:%s' %(page)
-	params = {
+	def istalk(self, ns=False):
+		if not ns:
+			ns = Page(self.page).namspace()
+		else:
+			ns = int(ns)
+		if ns != -1 or ns != -2:
+			if ns%2 == 0:
+				return False
+			elif ns%2 == 1:
+				return True
+			else:
+				sys.exit("Error: Python Division error")
+		else:
+			return False
+	def toggletalk(self):
+		try:
+			nstext = self.page.split(':')[0]
+		except:
+			nstext = ''
+		nsnum = Site.namespacelist()[1][nstext]
+		if nsnum == -1 or nsnum == -2:
+			print 'Cannot toggle the talk of a Special or Media page.'
+			return self.page
+		istalk = self.istalk(ns=nsnum)
+		if istalk:
+			nsnewtext = Site.namespacelist()[0][nsnum-1]
+		else:
+			nsnewtext = Site.namespacelist()[0][nsnum+1]
+		tt = nsnewtext + ':' + self.page.split(':')[1]
+		return tt
+
+"""
+Class that is mainly internal working, but contains information relevant
+to the wiki site.
+"""
+class Site:
+	def __iter__(self, wiki = config.wiki):
+		self.wiki = wiki
+	
+	def namespacelist(self, force = False):
+		if self.nslist and not force:
+				return self.nslist
+		params = {
+			'action':'query',
+			'meta':'siteinfo',
+			'siprop':'namespaces',
+		}
+		res = API(params).query()
+		resd = res['query']['namespaces']
+		list = resd.keys()
+		nstotext = {}
+		texttons = {}
+		for ns in list:
+			nstotext[int(ns)] = resd[ns]['*']
+			texttons[resd[ns]['*']] = int(ns)
+		self.nslist = (nstotext,texttons)
+		return self.nslist
+
+"""
+Other functions
+"""
+def checklogin():
+	paramscheck = {
 		'action':'query',
-		'list':'categorymembers',
-		'cmtitle':page,
-		'cmlimit':str(limit),
+		'meta':'userinfo',
+		'uiprop':'hasmsg',
 	}
-	res = query(wiki, params, format = 'xml')
-	resd = re.findall('title="(.*?)"', res)
-#	print resd
-	return resd
-def newpages(wiki, limit = 15, patrolled = False, bot = False):
-	if userconfig.bot:
-		limit = 50
+	querycheck = API(paramscheck).query()
+	name = querycheck['query']['userinfo']['name']
+	print name
+	if querycheck['query']['userinfo'].has_key('messages'):
+		print 'You have new messages on %s.' %(config.wiki)
+		if config.quitonmess:
+			sys.exit()
+	if querycheck['query']['userinfo'].has_key('anon'):
+		return False
+	return name
+def login(username = False, force = False):
+	if not username:
+		username = config.username
+	else:
+		username = username
+	check = checklogin()
+	print check
+	if check and (check == username) and (force == False):
+		return
+	try:
+		password = config.password
+	except:
+		password = getpass.getpass('API Login Password for %s: ' %username)
 	params = {
-		'action':'query',
-		'list':'recentchanges',
-		'rcprop':'title',
-		'rctype':'new',
+		'action' : 'login',
+		'lgname' : username,
+		'lgpassword' : password,
 	}
-	if patrolled:
-		params['rcshow'] = 'patrolled'
-	if bot:
-		params['rcshow'] = 'bot'
-	if patrolled and bot:
-		params['rcshow'] = 'patrolled|bot'
-	res = query(wiki, params, format = 'xml')
-	resd = re.findall('title="(.*?)"', res)
-	print resd
+	query = API(params).query()
+	result = query['login']['result'].lower()
+	if result == 'success':
+		print 'Successfully logged in on %s.' %(config.wiki)
+	else:
+		print 'Failed to login on %s.' %(config.wiki)
+		sys.exit()
+	print query
