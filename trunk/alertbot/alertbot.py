@@ -25,7 +25,6 @@ hour = cur[3]
 min = cur[4]
 sec = cur[5]
 stamp = month+' '+str(day)+ ', '+str(year)+' at '+str(hour)+':'+str(min)+':'+str(sec)
-#sys.path.append('/home/legoktm/public_html/cgi-bin')
 log = open('/home/legoktm/alertbot/AlertsBatch.log', 'r')
 logtext = log.read()
 log.close()
