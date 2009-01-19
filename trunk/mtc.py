@@ -8,10 +8,11 @@
 __version__ = '$Id: $'
 
 Note: Still in development stage
+Status: Approved for a 5 day trial
 """
 import urllib, re, time
 import os, sys
-sys.path.append(os.environ['HOME'] + '/stuffs/pywiki/pylegoktm')
+sys.path.append(os.environ['HOME'] + '/stuffs/pywiki/pywikipedia')
 
 import wikipedia, pagegenerators, catlib
 from image import *
@@ -106,7 +107,7 @@ def ncd(name):
 	wikitext = re.compile(r'\{\{To commons\}\}', re.IGNORECASE).sub(r'', wikitext)
 	wikitext= re.compile(r'\{\{Copy to Wikimedia Commons by BotMultichill\}\}', re.IGNORECASE).sub(r'', wikitext)
 	if '{{Now' in wikitext:
-		print '{{subst:ncd}} already added, will only remove.'	
+		print '{{subst:ncd}} already added, will only remove {{mtc}} template.'	
 	else:
 		wikitext = '{{subst:ncd}}\n' + wikitext
 	wikipedia.showDiff(state0, wikitext)
