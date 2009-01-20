@@ -81,19 +81,19 @@ def upload(name):
 	#wikipedia.showDiff('', descrip)
 	time.sleep(20)
 	bot = UploadRobot(name.fileUrl(), description=descrip, useFilename=name.fileUrl(), keepFilename=True, verifyDescription=False, targetSite = commons)
-	try:
-		bot.run()
-		print '%s was uploaded to commons:commons.' %(delink(name))
+
+	bot.run()
+	print '%s was uploaded to commons:commons.' %(delink(name))
 		
-	except:
-		log = open('ErrorLog.txt', 'r')
-		logtext = log.read()
-		log.close()
-		log = open('ErrorLog.txt', 'w')
-		print 'An error occured while trying to upload %s' %(str(name))
-		log.write(logtext + '\nAn error occured while trying to upload %s' %(str(name)))
-		log.close()
-		return False
+#	except:
+#		log = open('ErrorLog.txt', 'r')
+#		logtext = log.read()
+#		log.close()
+#		log = open('ErrorLog.txt', 'w')
+#		print 'An error occured while trying to upload %s' %(str(name))
+#		log.write(logtext + '\nAn error occured while trying to upload %s' %(str(name)))
+#		log.close()
+#		return False
 #Edit enwiki page to reflect movement
 
 def ncd(name):
