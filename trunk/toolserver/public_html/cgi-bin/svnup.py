@@ -1,24 +1,49 @@
 #!/usr/bin/python
 import cgitb; cgitb.enable()
 import cgi, sys
-import commands
+from commands import getoutput
+sys.path.append('/home/legoktm')
 
 import monobook
 
-content = """\
+input_content = """\
 	<h2>Run subversion update</h2>
 <form name="input" action="/~legoktm/cgi-bin/svnup.py" method="get">
 
 Username: <input type="text" name="username">
 
 <br />
-Passcode: <input type="text" name="code"> <i>Ask Legoktm</i>
+Passcode: <input type="password" name="code"> <i>(Ask Legoktm)</i>
 <br />
 <input type="submit" value="Run">
 </form>
 """
-
-print monobook.header('SVN Updater')
-print monobook.body(content)
-print monobook.navbar()
-print monobook.footer()
+fullcontent = monobook.header('SVN Updater') + monobook.body(%s) + monobook.navbar() + monobook.footer()
+form = cgi.FieldStorage()
+try:
+	username = form["username"].value
+	value = True
+except:
+	value = False
+if value:
+	code = form["code"].value
+	import passcode
+	if code == passcode.code:
+		#remove the pass code
+		passcode = ''
+		run = True
+		execute = getoutput('cd -L; svn up')
+		content = """\
+		<h2>Result</h2>
+		%s
+		""" %(execute)
+		print fullcontent %(content)
+	else:
+		content = """\
+		<h2>Error</h2>
+		Incorrect Password.
+		"""
+		print fullcontent %(content)
+		sys.exit()
+else:
+	print fullcontent %(input_content)
