@@ -1,4 +1,7 @@
 #!usr/bin/python
+#
+# (C) Legoktm 2008-2009, MIT License
+# 
 import sys, os, re
 sys.path.append(os.environ['HOME'] + '/stuffs/pywiki/pywikipedia')
 

@@ -1,3 +1,7 @@
+#!usr/bin/python
+#
+# (C) Legoktm 2008-2009, MIT License
+#
 import wikipedia, pagegenerators, catlib
 import re
 from wikipedia import *

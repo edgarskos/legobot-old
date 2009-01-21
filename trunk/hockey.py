@@ -2,7 +2,7 @@
 # -*- coding: utf-8  -*-
 """
 
-(C) Legoktm, 2008 
+(C) Legoktm, 2008-2009
 
  Distributed under the terms of the MIT license.
 

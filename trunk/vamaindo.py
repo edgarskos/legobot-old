@@ -1,5 +1,8 @@
 #!usr/bin/python
 # -*- coding: utf-8  -*-
+#
+# (C) Legoktm 2008-2009, MIT License
+# 
 import vitalarticles
 import sys, os
 sys.path.append(os.environ['HOME'] + '/stuffs/pywiki/pywikipedia')

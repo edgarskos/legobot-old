@@ -1,4 +1,7 @@
 #!usr/bin/python
+#
+# (C) Legoktm 2008-2009, MIT License
+# 
 import os, sys, re
 sys.path.append(os.environ['HOME'] + '/pyenwiki')
 import wikipedia, catlib, pagegenerators

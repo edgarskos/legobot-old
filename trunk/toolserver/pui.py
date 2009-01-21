@@ -2,7 +2,7 @@
 # -*- coding: utf-8  -*
  
 #
-# (C) Legoktm 2008, MIT License
+# (C) Legoktm 2008-2009, MIT License
 # 
  
 import re, sys, os

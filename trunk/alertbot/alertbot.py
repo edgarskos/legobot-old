@@ -1,4 +1,7 @@
 #!usr/bin/env python
+#
+# (C) Legoktm 2008-2009, MIT License
+# 
 import time, sys, os, re
 sys.path.append('/home/legoktm/public_html/cgi-bin/')
 import monobook

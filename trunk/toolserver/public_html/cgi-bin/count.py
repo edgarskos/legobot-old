@@ -1,4 +1,7 @@
 #!/usr/bin/python
+#
+# (C) Legoktm 2008-2009, MIT License
+# 
 import cgitb; cgitb.enable()
 import cgi, sys
 import MySQLdb

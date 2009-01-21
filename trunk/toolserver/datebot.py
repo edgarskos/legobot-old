@@ -15,7 +15,7 @@ Pagegenerator options:
 """
 
 #
-# (C) Legoktm 2008
+# (C) Legoktm 2008-2009, MIT License
 # 
 
 import re, sys, time

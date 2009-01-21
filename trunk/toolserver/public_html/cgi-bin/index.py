@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+#
+# (C) Legoktm 2008-2009, MIT License
+# 
 import cgitb; cgitb.enable()
 import monobook
 content = """\
