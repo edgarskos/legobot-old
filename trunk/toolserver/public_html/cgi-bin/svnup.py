@@ -34,9 +34,9 @@ if value:
 		#remove the pass code
 		passcode = ''
 		run = True
-		execute = getoutput('cd -L; svn up')
+		execute = getoutput('cd /home/legoktm; svn up')
 		content = """\
-		<h2>Result</h2>
+		<h2>Result</h2><br />
 		%s
 		""" %(execute)
 		print fullcontent(content)
