@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import cgitb; cgitb.enable()
-import cgi, sys
+import cgi, sys, re
 from commands import getoutput
 sys.path.append('/home/legoktm')
 
@@ -35,10 +35,12 @@ if value:
 		passcode = ''
 		run = True
 		execute = getoutput('cd /home/legoktm; svn up')
+		newcont = execute.replace('.py','.py\n')
+		newcont2 = re.sub('Updated to revision (.*?).','\nUpdated to revision \1.', newcont)
 		content = """\
 		<h2>Result</h2><br />
 		%s
-		""" %(execute)
+		""" %(newcont2)
 		print fullcontent(content)
 	else:
 		content = """\
