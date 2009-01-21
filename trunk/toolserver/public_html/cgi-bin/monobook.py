@@ -85,7 +85,7 @@ def navbar(replagmessage = 'status', other = False):
 <ul>
 <li><a href="http://tools.wikimedia.de/~legoktm/">Main Page</a></li>
 <li><a href="http://code.google.com/p/legobot/issues/list">Bug tracker</a></li>
-<li><a href="http://code.google.com/p/legobot/source/list">Subversion</a></li>
+<li><a href="http://code.google.com/p/legobot/source/browse">Subversion</a></li>
 %s
 </ul>
 </div></div>

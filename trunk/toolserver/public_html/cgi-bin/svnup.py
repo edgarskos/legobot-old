@@ -20,7 +20,7 @@ Passcode: <input type="password" name="code"> <i>(Ask Legoktm)</i>
 """
 
 def fullcontent(content):
-	return monobook.header('SVN Updater') + monobook.body(content) + monobook.navbar() + monobook.footer()
+	return monobook.header('SVN Updater') + monobook.body(content) + monobook.navbar(other = 'http://code.google.com/p/legobot/source/browse/trunk/toolserver/public_html/cgi-bin/svnup.py|Source') + monobook.footer()
 form = cgi.FieldStorage()
 try:
 	username = form["username"].value
