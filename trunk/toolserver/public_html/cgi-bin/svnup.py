@@ -38,12 +38,11 @@ if value:
 		passcode = ''
 		run = True
 		execute = getoutput('cd /home/legoktm; svn up')
-		newcont = execute.replace('.py','.py\n')
-		newcont2 = re.sub('Updated to revision (.*?).','\nUpdated to revision \1.', newcont)
+		newcont = execute.replace('.py','.py<br />')
 		content = """\
 		<h2>Result</h2><br />
 		%s
-		""" %(newcont2)
+		""" %(newcont)
 		print fullcontent(content)
 	else:
 		content = """\
