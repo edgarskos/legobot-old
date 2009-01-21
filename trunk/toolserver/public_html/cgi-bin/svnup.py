@@ -18,7 +18,9 @@ Passcode: <input type="password" name="code"> <i>(Ask Legoktm)</i>
 <input type="submit" value="Run">
 </form>
 """
-fullcontent = monobook.header('SVN Updater') + monobook.body(%s) + monobook.navbar() + monobook.footer()
+
+def fullcontent(content):
+	return monobook.header('SVN Updater') + monobook.body(content) + monobook.navbar() + monobook.footer()
 form = cgi.FieldStorage()
 try:
 	username = form["username"].value
@@ -37,13 +39,13 @@ if value:
 		<h2>Result</h2>
 		%s
 		""" %(execute)
-		print fullcontent %(content)
+		print fullcontent(content)
 	else:
 		content = """\
 		<h2>Error</h2>
 		Incorrect Password.
 		"""
-		print fullcontent %(content)
+		print fullcontent(content)
 		sys.exit()
 else:
-	print fullcontent %(input_content)
+	print fullcontent(input_content)
