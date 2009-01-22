@@ -4,7 +4,7 @@
 # 
 import cgitb; cgitb.enable()
 import cgi, sys, urllib2, re, time
-
+import monobook
 print "Content-Type: text/html\n"
 
 months = {
