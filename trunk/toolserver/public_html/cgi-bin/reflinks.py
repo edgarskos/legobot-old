@@ -74,13 +74,14 @@ def createtemp(url, notemp = False):
 
 input_content = """\
 <h2>Template filler</h2>
+<br />
 <form name="input" action="/~legoktm/cgi-bin/reflinks.py" method="get">
 
 URL: <input type="text" name="url">
 
 <br />
-Use <code>{{cite web}}</code>: <input type="checkbox" name="temp"> <i>(Default True)</i>
-<br />
+Do not use <code>{{cite web}}</code>: <input type="checkbox" name="temp"> <i>(Default True)</i>
+<br /><br />
 <input type="submit" value="Fill template">
 </form>
 """
