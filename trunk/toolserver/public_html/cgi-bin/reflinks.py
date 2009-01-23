@@ -22,7 +22,7 @@ months = {
 	'12':'12',
 }
 
-def gettitle(url, error = False):
+def gettitle(url, errorrep = False):
 	try:
 		check = urllib2.urlopen(url)
 		error = False
@@ -47,7 +47,7 @@ def gettitle(url, error = False):
 		title = internetarch(url)
 		if title:
 			return title
-		if error:
+		if errorrep:
 			return error
 		return False
 #		sys.exit()
@@ -80,7 +80,7 @@ def createtemp(url, notemp = False):
 			<b>%s has been detected as a dead link (%s).  Please check <a href="http://web.archive.org">The Internet Archive</a> for old archives.</b>
 			<br />
 			<textarea>%s</textarea>
-			""" %(url, gettitle(url, error = True), template)
+			""" %(url, gettitle(url, errorrep = True), template)
 			printcontent(content)
 			sys.exit()
 		else:
