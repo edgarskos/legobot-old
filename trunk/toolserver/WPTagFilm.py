@@ -65,7 +65,7 @@ def checktalk():
 		sys.exit()
 def dopage(page):
 	wikipedia.setAction('Tagging for [[WP:FILM]] with {{Film}}')
-	tag = "{{Film}}"
+	tag = "{{Film}}\n"
 	tag2 = "{{Film|nested=yes}}"
 	badcats = ['Category:The Wizard of Oz (1939 film)', 'Category:Dragnet','Category:Dragnet episodes','Category:Monty Python and the Holy Grail','Category:Sholay','Category:Donnie Darko','Category:Chak De India','Category:Enchanted (film)', 'Category:Songs from Enchanted']
 	cats = checkcat(page.toggleTalkPage())
