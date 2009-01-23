@@ -100,6 +100,7 @@ def dopage(page):
 	else:
 		print 'Not a talk page...'
 def getartincat(cat):
+	print 'Getting pages in [[%s]]...' %cat
 	params = {
 		'action':'query',
 		'list':'categorymembers',
