@@ -74,7 +74,7 @@ def createtemp(url, notemp = False):
 		datefield = 'accessdate = %s-%s-%s' %(year, month, day)
 		title = gettitle(url)
 		if not title:
-			template = '[%s] {{dead link| date = {{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}
+			template = '[%s] {{dead link| date = {{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}'
 			content = """\
 			<h2>Template filler result</h2>
 			<b>%s has been detected as a dead link (%s).  Please check <a href="http://web.archive.org">The Internet Archive</a> for old archives.</b>
