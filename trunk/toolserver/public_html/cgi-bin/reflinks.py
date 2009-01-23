@@ -62,7 +62,7 @@ def deahref(text):
 		return text
 
 def internetarch(url):
-	check = urllib2.urlopen('http://web.archive.org/' + url)
+#	check = urllib2.urlopen('http://web.archive.org/' + url)
 	return False
 def createtemp(url, notemp = False):
 	url = url.replace(' ', '_')
