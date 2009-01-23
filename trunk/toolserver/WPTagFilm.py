@@ -14,6 +14,7 @@ import re, sys, os
 sys.path.append(os.environ['HOME'] + '/pyenwiki')
 import wikipedia, pagegenerators, catlib, query
 badcats = ['Category:The Wizard of Oz (1939 film)', 'Category:Dragnet','Category:Dragnet episodes','Category:Monty Python and the Holy Grail','Category:Sholay','Category:Donnie Darko','Category:Chak De India','Category:Enchanted (film)', 'Category:Songs from Enchanted']
+site = wikipedia.getSite()
 def checkcat(page):
 	page = re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', str(page))
 	params = {
@@ -33,7 +34,8 @@ def checkcat(page):
 	for i in list:
 		cats.append(i['title'])
 	return cats
-
+def delink(page):
+	return re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', str(page))
 def checktemp(page):
 	page = re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', str(page))
 	params = {
@@ -97,25 +99,43 @@ def dopage(page):
 			page.put(tag)
 	else:
 		print 'Not a talk page...'
+def getartincat(cat):
+	params = {
+		'action':'query',
+		'list':'categorymembers',
+		'cmtitle':cat,
+		'cmlimit':'500',
+	}
+	res = query.GetData(params, useAPI = True, encodeTitle = False)
+	res = res['query']['categorymembers']
+	list = []
+	for article in res:
+		list.append(article['title'])
+	listart = []
+	for page in list:
+		wikipage = wikipedia.Page(site, page)
+		if wikipage.namespace() == 0:
+			listart.append(wikipage)
+		elif wikipage.toggleTalkPage().namespace() == 1:
+			listart.append(wikipage.toggleTalkPage())
+	return listart
 def main():
 	site = wikipedia.getSite()
 	cat = catlib.Category(site,'Category:Films by year')
-	gen = pagegenerators.CategorizedPageGenerator(cat, recurse=True)
+	subcats = cat.subcategories(recurse = True)
+	cats = []
+	fulllist = []
+	for cat in subcats:
+		cats.append(delink(cat))
+	for cat in cats:
+		list = getartincat(cat)
+		for page in list:
+			fulllist.append(page.toggleTalkPage())
 	tag = "{{Film}}"
 	tag2 = "{{Film|nested=yes}}"
 	pages = []
-	badcats = ['Category:The Wizard of Oz (1939 film)', 'Category:Dragnet','Category:Dragnet episodes','Category:Monty Python and the Holy Grail','Category:Sholay','Category:Donnie Darko','Category:Chak De India','Category:Enchanted (film)', 'Category:Songs from Enchanted'] 
-	for page in gen:
-		if page.isTalkPage():
-			print 'Adding %s' %str(page)
-			pages.append(page)
-		else:
-			pages.append(page.toggleTalkPage())
-			print 'Adding %s' %str(page.toggleTalkPage())
-		print 'Sorting'
-		pages = sorted(set(pages))
 	wikipedia.setAction('Tagging for [[WP:FILM]] %s' % tag)
-	for page in pages:
+	for page in fulllist:
 		dopage(page)
 		
 
