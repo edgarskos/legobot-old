@@ -22,7 +22,7 @@ months = {
 	'12':'12',
 }
 
-def gettitle(url):
+def gettitle(url, error = False):
 	try:
 		check = urllib2.urlopen(url)
 		error = False
@@ -43,7 +43,13 @@ def gettitle(url):
 		return title
 	except urllib2.HTTPError, e:
 		error = e
-		print error
+		#print error
+		title = internetarch(url)
+		if title:
+			return title
+		if error:
+			return error
+		return False
 #		sys.exit()
 #		title = internetarch(url)
 
@@ -57,7 +63,7 @@ def deahref(text):
 
 def internetarch(url):
 	check = urllib2.urlopen('http://web.archive.org/' + url)
-	
+	return False
 def createtemp(url, notemp = False):
 	url = url.replace(' ', '_')
 	if not notemp:
@@ -66,10 +72,22 @@ def createtemp(url, notemp = False):
 		year = cur[0]
 		day = cur[2]
 		datefield = 'accessdate = %s-%s-%s' %(year, month, day)
-		template = '{{cite web| url = %s | title = %s | %s }}' %(url, gettitle(url), datefield)
+		title = gettitle(url)
+		if not title:
+			template = '[%s] {{dead link| date = {{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}
+			content = """\
+			<h2>Template filler result</h2>
+			<b>%s has been detected as a dead link (%s).  Please check <a href="http://web.archive.org">The Internet Archive</a> for old archives.</b>
+			<br />
+			<textarea>%s</textarea>
+			""" %(url, gettitle(url, error = True), template)
+			printcontent(content)
+			sys.exit()
+		else:
+			template = '{{cite web| url = %s | title = %s | %s }}' %(url, title, datefield)
 		return template
 	else:
-		return '[%s %s]' %(url, gettitle(url))
+		return '[%s %s]' %(url, title)
 
 
 input_content = """\
@@ -85,6 +103,12 @@ Do not use <code>{{cite web}}</code>: <input type="checkbox" name="temp"> <i>(De
 <input type="submit" value="Fill template">
 </form>
 """
+
+def printcontent(content):
+	print monobook.header('Template filler')
+	print monobook.body(content)
+	print monobook.navbar(other = 'http://code.google.com/p/legobot/source/browse/trunk/toolserver/public_html/cgi-bin/reflinks.py|Source')
+	print monobook.footer()
 
 def main():
 	form = cgi.FieldStorage()
@@ -105,10 +129,10 @@ def main():
 		""" %(template)
 	else:
 		content = input_content
-	print monobook.header('Template filler')
-	print monobook.body(content)
-	print monobook.navbar(other = 'http://code.google.com/p/legobot/source/browse/trunk/toolserver/public_html/cgi-bin/reflinks.py|Source')
-	print monobook.footer()
+	printcontent(content)
+	
+	
+
 	
 if __name__ == "__main__":
 	main()

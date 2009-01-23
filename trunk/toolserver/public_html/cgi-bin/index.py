@@ -12,8 +12,12 @@ content = """\
 </ul>
 <h1>Tools</h1>
 <ul>
-<li><a href="http://toolserver.org/~legoktm/count.html">Raw edit counter</a></li>
+<li><a href="http://toolserver.org/~legoktm/cgi-bin/count.py">Raw edit counter</a></li>
 <li><a href="http://toolserver.org/~legoktm/alertbot.html">Alertbot status</a></li>
+</ul>
+<h2>Beta Tools</h2>
+<ul>
+<li><a href="http://toolserver.org/~legoktm/cgi-bin/reflinks.py">Template filler</a></li>
 </ul>
 """
 
