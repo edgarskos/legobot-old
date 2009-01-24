@@ -67,7 +67,7 @@ def internetarch(url):
 	return False
 def createtemp(url, notemp = False):
 	url = url.replace(' ', '_')
-	if 'http' not in url;
+	if 'http' not in url:
 		url = 'http://' +url
 	if not notemp:
 		cur = time.localtime()
