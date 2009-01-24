@@ -75,8 +75,9 @@ def createtemp(url, notemp = False):
 		datefield = 'accessdate = %s-%s-%s' %(year, month, day)
 		title = gettitle(url)
 		if not title:
-			template = '[%s] {{dead link| date = %s %s' %(url, monthname, year)
+			template = '[%s] {{dead link| date = %s %s }}' %(url, monthname, year)
 			content = """\
+			<div id="contentSub"><span class="subpages">&lt; <a href="http://toolserver.org/~legoktm/cgi-bin/reflinks.py" title="reflinks.py">Template filler</a></span></div>
 			<h2>Template filler result</h2>
 			<b>%s has been detected as a dead link (%s).  Please check <a href="http://web.archive.org">The Internet Archive</a> for old archives.</b>
 			<br />
