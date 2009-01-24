@@ -29,7 +29,13 @@ def checkcat(page):
 		return
 	res = res['query']['pages']
 	key = res.keys()
-	list = res[key[0]]['categories']
+	try:
+		list = res[key[0]]['categories']
+	except KeyError, e:
+		print 'Error occured on %s' %str(page)
+		print res[key[0]]
+		print 'KeyError of %s' %e
+		sys.exit()
 	cats = []
 	for i in list:
 		cats.append(i['title'])
