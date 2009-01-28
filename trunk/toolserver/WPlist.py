@@ -9,7 +9,7 @@ def unicodify(text):
         return text.decode('utf-8')
     return text
 def delink(link):
-	link = re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', link)
+	link = re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', str(link))
 	return link
 site = wikipedia.getSite()
 def createlist(cat, wpproj, raw = False, cats = True):
@@ -44,6 +44,7 @@ def createlist(cat, wpproj, raw = False, cats = True):
 		page = wikipedia.Page(site, wpproj + '/Articles/raw')
 		page.put(wikitext2, 'Updating raw watchlist (Trial BRFA)')
 def retpages(cat):
+	cat = delink(str(cat))
 	wikitext = '==[[:%s]]==\n' %cat
 	print 'Getting pages in [[%s]] using API...' %cat
 	params = {
@@ -57,7 +58,7 @@ def retpages(cat):
 	for article in res:
 		try:
 			if article['ns'] != (14 or '14'):
-				wikitext += '*%s\n' %str(article)
+				wikitext += '*[[%s]]\n' %str(article['title'])
 		except KeyError:
 			return ''
 	return wikitext
