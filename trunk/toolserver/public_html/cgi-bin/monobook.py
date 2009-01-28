@@ -33,7 +33,7 @@ def getans(res):
 def getcolor(num):
 	colors = {'red':'#FF0000', 'green':'#a5ffbb'}
 	print '<!-- %s -->' %(num)
-	num = num / 86400
+	num = int(num) / 86400
 	if num >= 1:
 		return (colors['red'], str(num))
 	else:
