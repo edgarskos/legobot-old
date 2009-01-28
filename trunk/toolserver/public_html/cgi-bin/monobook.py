@@ -32,16 +32,19 @@ def getans(res):
 
 def getcolor(num):
 	colors = {'red':'#FF0000', 'green':'#a5ffbb'}
-	if int(num) >= 600:
+	num = convert_timestamp(int(num), hr = True)
+	if num >= 24:
 		return (colors['red'], str(num))
 	else:
 		return (colors['green'], str(num))
-def convert_timestamp(seconds):
+def convert_timestamp(seconds, hr = False):
 	seconds = int(seconds)
 	hours = seconds / 3600
 	seconds = seconds % 3600
 	minutes = seconds / 60
 	seconds = seconds % 60
+	if hr:
+		return hours
 	return '%sh %sm %ss' % (hours, minutes, seconds)
 
 def replagtable(repmess):
