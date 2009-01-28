@@ -58,7 +58,7 @@ def retpages(cat):
 	for article in res:
 		try:
 			if article['ns'] != (14 or '14'):
-				wikitext += '*[[%s]]\n' %str(article['title'])
+				wikitext += '*[[%s]]\n' %str(article['title']).encode("utf-8")
 		except KeyError:
 			return ''
 	return wikitext
