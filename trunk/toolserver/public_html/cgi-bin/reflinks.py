@@ -69,6 +69,7 @@ def createtemp(url, notemp = False):
 	url = url.replace(' ', '_')
 	if 'http' not in url:
 		url = 'http://' +url
+	title = gettitle(url)
 	if not notemp:
 		cur = time.localtime()
 		month = months[str(cur[1])]

@@ -7,7 +7,7 @@
  
 import re, sys, time
 import os
-sys.path.append(os.environ['HOME'] + '/pywikipedia')
+sys.path.append(os.environ['HOME'] + '/pyenwiki')
 import wikipedia, pagegenerators, catlib
 
  
