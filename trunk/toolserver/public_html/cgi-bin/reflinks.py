@@ -30,8 +30,7 @@ def gettitle(url, errorrep = False):
 		import BeautifulSoup
 		soup = BeautifulSoup.BeautifulSoup(check)
 		print soup.title.string
-
-		return title
+		return soup.title.string
 	except urllib2.HTTPError, e:
 		error = e
 		#print error
