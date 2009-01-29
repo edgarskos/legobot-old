@@ -30,6 +30,7 @@ def gettitle(url, errorrep = False):
 		text = check.read()
 		try:
 			title = re.findall('<title>(.*?)</title>', text)[0]
+			print re.findall('<title>(.*?)</title>', text)
 		except IndexError: #means that it couldn't find a title
 			#check for any level 1 headers, and then level 2 headers
 			try:
