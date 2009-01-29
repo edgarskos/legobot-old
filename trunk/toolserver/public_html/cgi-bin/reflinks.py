@@ -32,6 +32,7 @@ def gettitle(url, errorrep = False):
 		title = title.replace('|',' ') #so the onwiki template isnt messed up
 		title = title.replace('\n',' ') #remove extra line breaks
 		title = title.replace('\t',' ') #remove extra tabs
+		return title
 	except urllib2.HTTPError, e:
 		error = e
 		#print error
