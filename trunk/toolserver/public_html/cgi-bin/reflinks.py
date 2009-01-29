@@ -27,21 +27,10 @@ def gettitle(url, errorrep = False):
 	try:
 		check = urllib2.urlopen(url)
 		error = False
-		text = check.read()
-		try:
-			title = re.findall('<title>(.*)</title>', text)[0]
-			print re.findall('<title>(.*)</title>', text)
-		except IndexError: #means that it couldn't find a title
-			#check for any level 1 headers, and then level 2 headers
-			try:
-				title = re.findall('<h1>(.*?)</h1>', text)[0]
-				title = deahref(title)
-			except IndexError:
-				try:
-					title = re.findall('<h2>(.*?)</h2>', text)[0]
-					title = deahref(title)
-				except IndexError:
-					title = False
+		import BeautifulSoup
+		soup = BeautifulSoup.BeautifulSoup(check)
+		print soup.title.string
+
 		return title
 	except urllib2.HTTPError, e:
 		error = e
