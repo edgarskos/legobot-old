@@ -29,7 +29,7 @@ def gettitle(url, errorrep = False):
 		error = False
 		soup = BeautifulSoup.BeautifulSoup(check)
 		title = soup.title.string
-		title = title.replace('|',' ') #so the onwiki template isnt messed up
+		title = title.replace('|','-') #so the onwiki template isnt messed up
 		title = title.replace('\n',' ') #remove extra line breaks
 		title = title.replace('\t',' ') #remove extra tabs
 		return title
