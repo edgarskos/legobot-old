@@ -4,7 +4,7 @@
 # 
 import cgitb; cgitb.enable()
 import cgi, sys, urllib2, re, time
-import monobook
+import monobook, BeautifulSoup
 print "Content-Type: text/html\n"
 
 months = {
@@ -27,10 +27,11 @@ def gettitle(url, errorrep = False):
 	try:
 		check = urllib2.urlopen(url)
 		error = False
-		import BeautifulSoup
 		soup = BeautifulSoup.BeautifulSoup(check)
-		print soup.title.string
-		return soup.title.string
+		title = soup.title.string
+		title = title.replace('|',' ') #so the onwiki template isnt messed up
+		title = title.replace('\n',' ') #remove extra line breaks
+		title = title.replace('\t',' ') #remove extra tabs
 	except urllib2.HTTPError, e:
 		error = e
 		#print error
