@@ -45,6 +45,18 @@ def gettitle(url, errorrep = False):
 #		sys.exit()
 #		title = internetarch(url)
 
+def getreftag(url):
+	if '.com' in url:
+		list = '<ref name="' + url.split('.com')[0] + '">'
+		return list
+	if '.org' in url:
+		list = '<ref name="' + url.split('.org')[0] + '">'
+		return list
+	if '.net' in url:
+		list = '<ref name="' + url.split('.net')[0] + '">'
+		return list
+	return '<ref>'
+	
 	
 def deahref(text):
 	text = re.findall('<a(.*?)>(.*?)</a>', text)
@@ -67,10 +79,11 @@ def createtemp(url, notemp = False):
 		monthname = time.strftime('%B')		
 		year = cur[0]
 		day = cur[2]
+		frontreftag = getreftag(url)
 		datefield = 'accessdate = %s-%s-%s' %(year, month, day)
 		title = gettitle(url)
 		if not title:
-			template = '[%s] {{dead link| date = %s %s }}' %(url, monthname, year)
+			template = frontreftag + '[%s] {{dead link| date = %s %s }}</ref>' %(url, monthname, year)
 			content = """\
 			<h2>Template filler result</h2>
 			%s
@@ -81,10 +94,10 @@ def createtemp(url, notemp = False):
 			printcontent(content)
 			sys.exit()
 		else:
-			template = '{{cite web| url = %s | title = %s | %s }}' %(url, title, datefield)
+			template = frontreftag + '{{cite web| url = %s | title = %s | %s }}</ref>' %(url, title, datefield)
 		return template
 	else:
-		return '[%s %s]' %(url, title)
+		return frontreftag + '[%s %s]</ref>' %(url, title)
 
 
 input_content = """\
