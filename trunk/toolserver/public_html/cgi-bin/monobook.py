@@ -32,7 +32,7 @@ def getans(res):
 
 def getcolor(num):
         colors = {'red':'#FF0000', 'green':'#a5ffbb'}
-        if int(num) >= 600:
+        if int(num) >= 86400:
                 return (colors['red'], str(num))
         else:
                 return (colors['green'], str(num))
