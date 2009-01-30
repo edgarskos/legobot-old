@@ -47,13 +47,13 @@ def gettitle(url, errorrep = False):
 
 def getreftag(url):
 	if '.com' in url:
-		list = '<ref name="' + url.split('.com')[0] + '">'
+		list = '<ref name="' + url.split('.com')[0] + '.com">'
 		return list
 	if '.org' in url:
-		list = '<ref name="' + url.split('.org')[0] + '">'
+		list = '<ref name="' + url.split('.org')[0] + '.org">'
 		return list
 	if '.net' in url:
-		list = '<ref name="' + url.split('.net')[0] + '">'
+		list = '<ref name="' + url.split('.net')[0] + '.net">'
 		return list
 	return '<ref>'
 	
