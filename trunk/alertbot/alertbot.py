@@ -31,7 +31,7 @@ stamp = month+' '+str(day)+ ', '+str(year)+' at '+str(hour)+':'+str(min)+':'+str
 log = open('/home/legoktm/alertbot/AlertsBatch.log', 'r')
 logtext = log.read()
 log.close()
-rs = re.findall('(.*)-(.*)-(.*) (.*),(.*) \[main\] INFO - Batch job completed; exit code 0', logtext)[0]
+rs = re.findall('(.*)-(.*)-(.*) (.*),(.*) \[main\] INFO - Batch job completed; exit code (0|1)', logtext)[0]
 runstamptext = months[str(int(rs[1]))]+' '+rs[2]+ ', '+rs[0]+' at '+rs[3]+':'+rs[4]
 
 def finderrors(logtext):
