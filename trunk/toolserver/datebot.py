@@ -64,12 +64,9 @@ def process_article(page):
 		wikitext = re.compile(r'\{\{\s*copyedit\}\}', re.IGNORECASE).sub(r'{{Copyedit|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 		wikitext = re.compile(r'\{\{\s*refimprove\}\}', re.IGNORECASE).sub(r'{{Refimprove|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 		EditMsg = "Date maintenance tags"
-		if page.get() != state0:
+		if state1 != state0:
 			EditMsg = EditMsg + " and general fixes"
-		
-		
 		wikipedia.setAction(EditMsg)
-	
 		# If the text has changed at all since the state point, upload it
 		if (wikitext != state0):
 			try:
