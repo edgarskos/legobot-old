@@ -1,12 +1,10 @@
 #!usr/bin/python
-"""Username to login/edit/query with"""
-#make sure you replace with your own username
-username = 'Legoktm'
-"""Not necessary, but won't prompt you for password"""
-#password = ''
-"""Quit when finding new messages?"""
-quitonmess = False
-""" Wiki to query... in format of 'xx.project' """
-wiki = 'en.wikipedia'
-"""API path for the wiki, where %s is the wiki above"""
-apipath = 'http://%s.org/w/api.php'
+import sys
+try:
+	import userconfig
+except ImportError
+	sys.exit('Please run generate_config.py script to generate your preferences')
+username = userconfig.username
+quitonmess = userconfig.quitonmess
+wiki = userconfig.wiki
+apipath = userconfig.apipath
