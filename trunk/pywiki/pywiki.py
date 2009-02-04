@@ -45,12 +45,22 @@ class API:
 		text = self.response.read()
 		newtext = simplejson.loads(text)
 		return newtext
-
+	def edittoken(self):
+		params = {
+			'action':'query',
+			'prop':'info',
+			'intoken':'edit',
+			'titles':'Main Page', #since a token is universal for a login session
+		}
+		res = API().query(params)['query']['pages']
+		token = res[res.keys()[0]]['edittoken']
+		return token
 		
 class Page:
 	
 	def __init__(self, page):
 		self.API = API()
+		self.edittoken = self.API.edittoken()
 		self.page = page
 		self.basicinfo = self.__basicinfo()
 	#INTERNAL OPERATION, PLEASE DON'T USE
@@ -73,29 +83,27 @@ class Page:
 			'rvprop':'content',
 		}
 		res = self.API.query(params)
-		id = self.__basicinfo()['pageid']
+		id = self.basicinfo()['pageid']
 		content = res['query']['pages'][id]['revisions'][0]['*']
 
 		return content.encode('utf-8')
 
-	def put(self, newtext, summary, token = False):
-		#get the token
-		if token:
-			self.token = token
-		if not self.token:
-			paramstoken = {
-				'action':'query',
-				'prop':'info',
-				'intoken':'edit',
-				'titles':self.page,
-			}
-			querytoken = self.API.query(paramstoken)
-			key = querytoken['query']['pages'].keys()[0]
-			token = querytoken['query']['pages'][key]['edittoken']
-			self.token = token
+	def put(self, newtext, summary, watch = False, newsection = False):
 		#do the edit
-		putparams = {
+		params = {
+			'action':'edit',
+			'title':self.page,
+			'text':newtext,
+			'summary':summary,
+			'token':self.edittoken,
 		}
+		if watch:
+			params['watch'] = ''
+		if newsection:
+			params['section'] = 'new'
+		self.API.query(params)
+			
+			
 		
 	def titlewonamespace(self, ns=False):
 		if not ns:
@@ -109,7 +117,7 @@ class Page:
 	def namespace(self, force = False):
 		if self.ns and not force:
 			return self.ns
-		query = self.__basicinfo()
+		query = self.basicinfo()
 		resd = query['ns']
 		self.ns = resd
 		return self.ns
@@ -160,6 +168,17 @@ class Page:
 			nsnewtext = Site.namespacelist()[0][nsnum+1]
 		tt = nsnewtext + ':' + self.page.split(':')[1]
 		return tt
+	def isCategory(self):
+		return self.namespace() == 14
+	def isImage(self):
+		return self.namespace() == 6
+	def patrol(self, rcid):
+		params = {
+			'action':'patrol,
+			'rcid':rcid,
+			'token':self.edittoken
+		}
+		self.API.query(params)
 
 """
 Class that is mainly internal working, but contains information relevant
