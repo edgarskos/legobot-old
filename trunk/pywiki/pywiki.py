@@ -62,7 +62,7 @@ class Page:
 		self.API = API()
 		self.edittoken = self.API.edittoken()
 		self.page = page
-		self.basicinfo = self.__basicinfo()
+		self.__basicinfo = self.__basicinfo()
 	#INTERNAL OPERATION, PLEASE DON'T USE
 	def __basicinfo(self):
 		params = {
@@ -83,7 +83,7 @@ class Page:
 			'rvprop':'content',
 		}
 		res = self.API.query(params)
-		id = self.basicinfo()['pageid']
+		id = self.__basicinfo['pageid']
 		content = res['query']['pages'][id]['revisions'][0]['*']
 
 		return content.encode('utf-8')
@@ -117,7 +117,7 @@ class Page:
 	def namespace(self, force = False):
 		if self.ns and not force:
 			return self.ns
-		query = self.basicinfo()
+		query = self.__basicinfo
 		resd = query['ns']
 		self.ns = resd
 		return self.ns
