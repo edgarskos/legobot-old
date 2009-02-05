@@ -5,8 +5,8 @@ All GET queries will still work using POST.
 
 Basic API query:
 
-import pywiki
-API = pywiki.API()
+import wiki
+API = wiki.API()
 params = {'action':'query' ...}
 result = API.query(params)
 
