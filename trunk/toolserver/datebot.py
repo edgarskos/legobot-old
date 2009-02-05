@@ -26,9 +26,9 @@ import wikipedia, pagegenerators, catlib
 # Define global constants
 readDelay  = 20	# seconds
 writeDelay = 60 # seconds
-
+site = wikipedia.getSite()
 def checktalk():
-	page = wikipedia.Page('User:Legobot II/Stop')
+	page = wikipedia.Page(site, 'User:Legobot II/Stop')
 	try:
 		wikitext = page.get()
 	except:
