@@ -23,7 +23,7 @@ class APIError(Exception):
 
 class API:
 	
-	def __init__(self, wiki = config.wiki, login=False, debug=False):
+	def __init__(self, wiki = config.wiki, login=False, debug=False, qcontinue = True):
 		#set up the cookies
 		self.COOKIEFILE = os.environ['PWD'] + '/cookies/'+ config.username +'.data'
 		self.cj = cookielib.LWPCookieJar()
@@ -33,7 +33,7 @@ class API:
 			raise NotLoggedIn('Please login by first running wiki.py')
 		self.wiki = wiki
 		self.debug = debug
-		
+		self.qcontinue = qcontinue
 	def query(self, params, after= None):
 		if os.path.isfile(self.COOKIEFILE):
 			self.cj.load(self.COOKIEFILE)
@@ -56,8 +56,52 @@ class API:
 		self.cj.save(self.COOKIEFILE)
 		text = self.response.read()
 		newtext = simplejson.loads(text)
+		#finish query-continues
+		if ('query-continue' in newtext) and self.qcontinue:
+			newtext = self.__longQuery(newtext)
 		return newtext
-		
+	def __longQuery(self, firstres):
+		total = res = firstres
+		params = self.params
+		numkeys = len(res['query-continue'].keys())
+		while numkeys > 0:
+			keylist = res['query-continue'].keys()
+			keylist.reverse()
+			key1 = keylist[0]
+			key2 = res['query-continue'][key1].keys()[0]
+			if isinstance(res['query-continue'][key1][key2], int):
+				cont = res['query-continue'][key1][key2]
+			else:
+				cont = res['query-continue'][key1][key2].encode('utf-8')
+			params[key2] = cont
+			res = API(qcontinue=False).query(params)
+			for type in keylist:
+				total = self.__resultCombine(type, total, res)
+			if 'query-continue' in res:
+				numkeys = len(res['query-continue'].keys())
+			else:
+				numkeys = 0
+		return total
+	def __resultCombine(self, type, old, new):
+		"""
+		Experimental-ish result-combiner thing
+		If the result isn't something from action=query,
+		this will just explode, but that shouldn't happen hopefully?
+		(taken from python-wikitools)
+		"""
+		ret = old
+		if type in new['query']: # Basic list, easy
+			ret['query'][type].extend(new['query'][type])
+		else: # Else its some sort of prop=thing and/or a generator query
+			for key in new['query']['pages'].keys(): # Go through each page
+				if not key in old['query']['pages']: # if it only exists in the new one
+					ret['query']['pages'][key] = new['query']['pages'][key] # add it to the list
+				else:
+					for item in new['query']['pages'][key][type]:
+						if item not in ret['query']['pages'][key][type]: # prevent duplicates
+							ret['query']['pages'][key][type].append(item) # else update the existing one
+		return ret
+
 class Page:
 	
 	def __init__(self, page):
