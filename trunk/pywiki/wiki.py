@@ -12,55 +12,56 @@ import urllib2, urllib, re, time, getpass, cookielib
 import config
 import simplejson, sys, os
 
+class NotLoggedIn(Exception):
+	"""User is not logged in"""
+
+class NoPage(Exception):
+	"""Page does not exist"""
+
+class APIError(Exception):
+	"""General API error"""
 
 class API:
 	
-	def __init__(self, wiki = config.wiki):
+	def __init__(self, wiki = config.wiki, login=False, debug=False):
 		#set up the cookies
-		COOKIEFILE = os.environ['PWD'] + '/cookies/cookies.data'
+		self.COOKIEFILE = os.environ['PWD'] + '/cookies/'+ config.username +'.data'
 		self.cj = cookielib.LWPCookieJar()
-		if os.path.isfile(COOKIEFILE):
-			self.cj.load(COOKIEFILE)
-
-		self.write = write
+		if os.path.isfile(self.COOKIEFILE):
+			self.cj.load(self.COOKIEFILE)
+		elif not login:
+			raise NotLoggedIn('Please login by first running wiki.py')
 		self.wiki = wiki
+		self.debug = debug
 		
-		
-	def query(self, params):
-		if os.path.isfile(COOKIEFILE):
-			self.cj.load(COOKIEFILE)
+	def query(self, params, after= None):
+		if os.path.isfile(self.COOKIEFILE):
+			self.cj.load(self.COOKIEFILE)
 		self.params = params
 		self.params['format'] = 'json'
 		self.encodeparams = urllib.urlencode(self.params)
+		if after:
+			self.encodeparams += after
+		if self.debug:
+			print self.encodeparams
 		self.headers = {
 			"Content-type": "application/x-www-form-urlencoded",
-			"User-agent": self.username,
+			"User-agent": config.username,
 			"Content-length": len(self.encodeparams),
 		}
 		self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
 		urllib2.install_opener(self.opener)
 		self.request = urllib2.Request(config.apipath %(self.wiki), self.encodeparams, self.headers)
 		self.response = urllib2.urlopen(self.request)
-		self.cj.save(COOKIEFILE)
+		self.cj.save(self.COOKIEFILE)
 		text = self.response.read()
 		newtext = simplejson.loads(text)
 		return newtext
-	def edittoken(self):
-		params = {
-			'action':'query',
-			'prop':'info',
-			'intoken':'edit',
-			'titles':'Main Page', #since a token is universal for a login session
-		}
-		res = API().query(params)['query']['pages']
-		token = res[res.keys()[0]]['edittoken']
-		return token
 		
 class Page:
 	
 	def __init__(self, page):
 		self.API = API()
-		self.edittoken = self.API.edittoken()
 		self.page = page
 		self.__basicinfo = self.__basicinfo()
 	#INTERNAL OPERATION, PLEASE DON'T USE
@@ -72,7 +73,7 @@ class Page:
 		}
 		
 		res = self.API.query(params)
-		id = res['query']['pages'].keys()
+		id = res['query']['pages'].keys()[0]
 		dict = res['query']['pages'][id]
 		return dict
 	def get(self):
@@ -82,28 +83,44 @@ class Page:
 			'titles':self.page,
 			'rvprop':'content',
 		}
-		res = self.API.query(params)
-		id = self.__basicinfo['pageid']
-		content = res['query']['pages'][id]['revisions'][0]['*']
-
+		res = self.API.query(params)['query']['pages']
+		if res.keys()[0] == '-1':
+			raise NoPage(self.page)
+		content = res[res.keys()[0]]['revisions'][0]['*']
 		return content.encode('utf-8')
 
 	def put(self, newtext, summary, watch = False, newsection = False):
+		#get the token
+		tokenparams = {
+			'action':'query',
+			'prop':'info',
+			'intoken':'edit',
+			'titles':self.page
+		}
+		token = self.API.query(tokenparams)['query']['pages']
+		token = token[token.keys()[0]]['edittoken']
+		print token
+
 		#do the edit
 		params = {
 			'action':'edit',
 			'title':self.page,
 			'text':newtext,
 			'summary':summary,
-			'token':self.edittoken,
+			'token':token,
 		}
 		if watch:
 			params['watch'] = ''
 		if newsection:
 			params['section'] = 'new'
-		self.API.query(params)
-			
-			
+		res=self.API.query(params)
+		if res.has_key('error'):
+			raise APIError(res['error'])
+		if res['edit']['result'] == 'Success':
+			print 'Changing [[%s]] was successful.' %self.page
+		else:
+			print 'Changing [[%s]] failed.' %self.page
+			raise APIError(res)
 		
 	def titlewonamespace(self, ns=False):
 		if not ns:
@@ -174,11 +191,41 @@ class Page:
 		return self.namespace() == 6
 	def patrol(self, rcid):
 		params = {
-			'action':'patrol,
+			'action':'patrol',
 			'rcid':rcid,
 			'token':self.edittoken
 		}
 		self.API.query(params)
+	def exists(self):
+		if self.__basicinfo.has_key('missing'):
+			return False
+		else:
+			return True
+	def move(self, newtitle, summary, movetalk = True):
+		tokenparams = {
+			'action':'query',
+			'prop':'info',
+			'intoken':'move',
+			'titles':self.page
+		}
+		token = self.API.query(tokenparams)['query']['pages']
+		token = token[token.keys()[0]]['movetoken']
+		params = {
+			'action':'move',
+			'from':self.page,
+			'to':newtitle,
+			'reason':summary,
+			'token':token
+		}
+		if movetalk:
+			res = self.API.query(params,'&movetalk')
+		else:
+			res = self.API.query(params)
+		if res.has_key('error'):
+			raise APIError(res['error'])
+		if res.has_key('move'):
+			print 'Page move of %s to %s succeeded' (self.page, newtitle)
+		return res
 
 """
 Class that is mainly internal working, but contains information relevant
@@ -226,11 +273,9 @@ def checklogin():
 	if querycheck['query']['userinfo'].has_key('anon'):
 		return False
 	return name
-def login(username = False, force = False):
+def login(username = False):
 	if not username:
 		username = config.username
-	else:
-		username = username
 	try:
 		password = config.password
 	except:
@@ -240,10 +285,14 @@ def login(username = False, force = False):
 		'lgname' : username,
 		'lgpassword' : password,
 	}
-	query = API().query(params)
+	
+	query = API(login=True).query(params)
 	result = query['login']['result'].lower()
 	if result == 'success':
 		print 'Successfully logged in on %s.' %(config.wiki)
 	else:
 		print 'Failed to login on %s.' %(config.wiki)
 		sys.exit()
+
+if __name__ == "__main__":
+	login()
