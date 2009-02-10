@@ -36,8 +36,10 @@ def checktalk():
 	if wikitext.lower() != 'run':
 		sys.exit()
 def process_article(page):
-		wikitext = state1 = page.get()
-		
+		try:
+			wikitext = state1 = page.get()
+		except wikipedia.IsRedirectPage:
+			return
 		# Fix Casing (Reduces the number of possible expressions)
 		wikitext = re.compile(r'\{\{\s*(template:|)fact', re.IGNORECASE).sub(r'{{Fact', wikitext)
 		# Fix some redirects
@@ -105,8 +107,7 @@ def main():
 	docat("Articles to be merged")
 	docat("Wikipedia articles needing copy edit")
 	docat("Articles needing additional references")
-	
-	wikipedia.output(u'\nOperation Complete.\n')
+	wikipedia.output(u'\nDone.')
 
 if __name__ == "__main__":
 	try:
