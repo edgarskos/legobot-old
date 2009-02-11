@@ -385,7 +385,7 @@ def login(username = False):
 	elif result == 'wrongpass':
 		raise WrongPass
 	elif result == 'throttled':
-		raise LoginThrottled('Wait %s seconds before trying again.' %(query['login']['wait'])
+		raise LoginThrottled('Wait %s seconds before trying again.' %(query['login']['wait']))
 	else:
 		print 'Failed to login on %s.' %(config.wiki)
 		raise APIError(query)
