@@ -27,9 +27,9 @@ def category(page, excludens = False):
 		try:
 			if excludens:
 				if page['ns'] != int(excludens):
-					list.append(wiki.Page(page['title']))
+					list.append(page['title'])
 			else:
-				list.append(wiki.Page(page['title']))
+				list.append(page['title'])
 		except UnicodeEncodeError:
 			pass
 	return list
