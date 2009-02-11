@@ -31,6 +31,15 @@ class APIError(Exception):
 class NotCategory(Exception):
 	"""When expected page should be category, but is not"""
 
+class LoginError(Exception):
+	"""General login error"""
+
+class WrongPass(LoginError):
+	"""Wrong password entered"""
+	
+class LoginThrottled(LoginError):
+	"""Login throttled by MediaWiki"""
+
 class API:
 	
 	def __init__(self, wiki = config.wiki, login=False, debug=False, qcontinue = True):
@@ -373,6 +382,10 @@ def login(username = False):
 	result = query['login']['result'].lower()
 	if result == 'success':
 		print 'Successfully logged in on %s.' %(config.wiki)
+	elif result == 'wrongpass':
+		raise WrongPass
+	elif result == 'throttled':
+		raise LoginThrottled('Wait %s seconds before trying again.' %(query['login']['wait'])
 	else:
 		print 'Failed to login on %s.' %(config.wiki)
 		raise APIError(query)
