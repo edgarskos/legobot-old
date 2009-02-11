@@ -122,7 +122,7 @@ class API:
 class Page:
 	
 	def __init__(self, page):
-		self.API = API(debug=True)
+		self.API = API()
 		self.page = page
 		self.__basicinfo = self.__basicinfo()
 		if self.__basicinfo.has_key('redirect'):
