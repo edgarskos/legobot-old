@@ -36,6 +36,7 @@ class API:
 	def __init__(self, wiki = config.wiki, login=False, debug=False, qcontinue = True):
 		#set up the cookies
 		self.COOKIEFILE = os.environ['PWD'] + '/cookies/'+ config.username +'.data'
+		self.COOKIEFILE = self.COOKIEFILE.replace(' ','_')
 		self.cj = cookielib.LWPCookieJar()
 		if os.path.isfile(self.COOKIEFILE):
 			self.cj.load(self.COOKIEFILE)
