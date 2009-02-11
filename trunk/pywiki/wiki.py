@@ -9,17 +9,27 @@ See COPYING for full License
 
 """
 import urllib2, urllib, re, time, getpass, cookielib
+from datetime import datetime
 import config
 import simplejson, sys, os
 
 class NotLoggedIn(Exception):
 	"""User is not logged in"""
 
+class UserBlocked(Exception):
+	"""User is blocked"""
+
 class NoPage(Exception):
 	"""Page does not exist"""
 
+class IsRedirectPage(Exception):
+	"""Page is a redirect to target"""
+
 class APIError(Exception):
 	"""General API error"""
+
+class NotCategory(Exception):
+	"""When expected page should be category, but is not"""
 
 class API:
 	
@@ -31,10 +41,13 @@ class API:
 			self.cj.load(self.COOKIEFILE)
 		elif not login:
 			raise NotLoggedIn('Please login by first running wiki.py')
-		self.wiki = wiki
+		if wiki == 'commons':
+			self.wiki = 'commons.wikimedia'
+		else:
+			self.wiki = wiki
 		self.debug = debug
 		self.qcontinue = qcontinue
-	def query(self, params, after= None):
+	def query(self, params, after = None, write = False):
 		if os.path.isfile(self.COOKIEFILE):
 			self.cj.load(self.COOKIEFILE)
 		self.params = params
@@ -52,10 +65,14 @@ class API:
 		self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
 		urllib2.install_opener(self.opener)
 		self.request = urllib2.Request(config.apipath %(self.wiki), self.encodeparams, self.headers)
+#		print 'Querying API'
 		self.response = urllib2.urlopen(self.request)
 		self.cj.save(self.COOKIEFILE)
 		text = self.response.read()
 		newtext = simplejson.loads(text)
+		#errors should be handled now
+		if newtext.has_key('error'):
+			raise APIError(newtext['error'])
 		#finish query-continues
 		if ('query-continue' in newtext) and self.qcontinue:
 			newtext = self.__longQuery(newtext)
@@ -105,10 +122,15 @@ class API:
 class Page:
 	
 	def __init__(self, page):
-		self.API = API()
+		self.API = API(debug=True)
 		self.page = page
 		self.__basicinfo = self.__basicinfo()
-	#INTERNAL OPERATION, PLEASE DON'T USE
+		if self.__basicinfo.has_key('redirect'):
+			self.redirect = True
+		else:
+			self.redirect = False
+		self.ns = self.__basicinfo['ns']
+		self.Site = Site()
 	def __basicinfo(self):
 		params = {
 			'action':'query',
@@ -120,7 +142,11 @@ class Page:
 		id = res['query']['pages'].keys()[0]
 		dict = res['query']['pages'][id]
 		return dict
-	def get(self):
+	def title(self):
+		return self.page
+	def get(self, force = False):
+		if self.redirect and (not force):
+			raise IsRedirectPage(self.API.query({'action':'query','titles':self.page,'redirects':''})['query']['redirects'][0]['to'])
 		params = {
 			'action':'query',
 			'prop':'revisions',
@@ -143,7 +169,7 @@ class Page:
 		}
 		token = self.API.query(tokenparams)['query']['pages']
 		token = token[token.keys()[0]]['edittoken']
-		print token
+#		print token
 
 		#do the edit
 		params = {
@@ -157,7 +183,26 @@ class Page:
 			params['watch'] = ''
 		if newsection:
 			params['section'] = 'new'
-		res=self.API.query(params)
+		#check if we have waited 10 seconds since the last edit 
+		FILE = os.environ['PWD'] + '/cookies/lastedit.data'
+		try:
+			text = open(FILE, 'r').read()
+			split = text.split('|')
+			date = datetime(int(split[0]), int(split[1]), int(split[2]), int(split[3]), int(split[4]), int(split[5]))
+		except IOError:
+			date = datetime.now()
+		delta = datetime.now() - date
+		if delta.seconds < 10:
+			print 'Sleeping %s seconds' %(10-delta.seconds)
+			time.sleep(10-delta.seconds)
+		#update the file
+		d = datetime.now()
+		newtext = str(d.year) +'|'+ str(d.month) +'|'+ str(d.day) +'|'+ str(d.hour) +'|'+ str(d.minute) +'|'+ str(d.second)
+		write = open(FILE, 'w')
+		write.write(newtext)
+		write.close()
+		#the actual write query
+		res=self.API.query(params, write = True)
 		if res.has_key('error'):
 			raise APIError(res['error'])
 		if res['edit']['result'] == 'Success':
@@ -175,12 +220,7 @@ class Page:
 			return self.page
 		else:
 			return self.page.split(':')[1]
-	def namespace(self, force = False):
-		if self.ns and not force:
-			return self.ns
-		query = self.__basicinfo
-		resd = query['ns']
-		self.ns = resd
+	def namespace(self):
 		return self.ns
 	def lastedit(self, prnt = False):
 		params = {
@@ -189,25 +229,17 @@ class Page:
 			'titles':self.page,
 			'rvprop':'user|comment',
 		}
-		res = self.API.query(params)
-		resd = re.findall(',"revisions":\[\{"user":"(.*)","comment":"(.*)"\}\]\}\}\}\}', res)
-#		print resd
-		ret = {
-			'user':resd[0][0],
-			'comment':resd[0][1],
-		}
+		res = self.API.query(params)['query']['pages']
+		ret = res[res.keys()[0]]['revisions'][0]
+		print ret
 		if prnt:
-			print 'The last edit on %s was made by: %s with the comment of: %s.' %(page, resd[0][0], resd[0][1])
+			print 'The last edit on %s was made by: %s with the comment of: %s.' %(page, ret['user'], ret['comment'])
 		return ret
-	def istalk(self, ns=False):
-		if not ns:
-			ns = Page(self.page).namspace()
-		else:
-			ns = int(ns)
-		if ns != -1 or ns != -2:
-			if ns%2 == 0:
+	def istalk(self):
+		if self.ns != -1 or self.ns != -2:
+			if self.ns%2 == 0:
 				return False
-			elif ns%2 == 1:
+			elif self.ns%2 == 1:
 				return True
 			else:
 				sys.exit("Error: Python Division error")
@@ -218,15 +250,15 @@ class Page:
 			nstext = self.page.split(':')[0]
 		except:
 			nstext = ''
-		nsnum = Site.namespacelist()[1][nstext]
+		nsnum = self.Site.namespacelist()[1][nstext]
 		if nsnum == -1 or nsnum == -2:
 			print 'Cannot toggle the talk of a Special or Media page.'
 			return self.page
-		istalk = self.istalk(ns=nsnum)
+		istalk = self.istalk()
 		if istalk:
-			nsnewtext = Site.namespacelist()[0][nsnum-1]
+			nsnewtext = self.Site.namespacelist()[0][nsnum-1]
 		else:
-			nsnewtext = Site.namespacelist()[0][nsnum+1]
+			nsnewtext = self.Site.namespacelist()[0][nsnum+1]
 		tt = nsnewtext + ':' + self.page.split(':')[1]
 		return tt
 	def isCategory(self):
@@ -279,15 +311,13 @@ class Site:
 	def __iter__(self, wiki = config.wiki):
 		self.wiki = wiki
 		self.API = API()
-	def namespacelist(self, force = False):
-		if self.nslist and not force:
-				return self.nslist
+	def namespacelist(self):
 		params = {
 			'action':'query',
 			'meta':'siteinfo',
 			'siprop':'namespaces',
 		}
-		res = self.API.query(params)
+		res = API().query(params)
 		resd = res['query']['namespaces']
 		list = resd.keys()
 		nstotext = {}
