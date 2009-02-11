@@ -21,14 +21,13 @@ Pagegenerator options:
 import re, sys, time
 import os
 sys.path.append('/home/legoktm/legobot2')
-import wikipedia, pagegenerators, catlib
+import wiki, pagegen
 
 # Define global constants
 readDelay  = 20	# seconds
 writeDelay = 60 # seconds
-site = wikipedia.getSite()
 def checktalk():
-	page = wikipedia.Page(site, 'User:Legobot II/Stop')
+	page = wiki.Page(site, 'User:Legobot II/Stop')
 	try:
 		wikitext = page.get()
 	except:
@@ -38,7 +37,7 @@ def checktalk():
 def process_article(page):
 		try:
 			wikitext = state1 = page.get()
-		except wikipedia.IsRedirectPage:
+		except wiki.IsRedirectPage:
 			return
 		# Fix Casing (Reduces the number of possible expressions)
 		wikitext = re.compile(r'\{\{\s*(template:|)fact', re.IGNORECASE).sub(r'{{Fact', wikitext)
@@ -68,25 +67,21 @@ def process_article(page):
 		EditMsg = "Date maintenance tags"
 		if state1 != state0:
 			EditMsg = EditMsg + " and general fixes"
-		wikipedia.setAction(EditMsg)
 		# If the text has changed at all since the state point, upload it
 		if (wikitext != state0):
 			try:
 				print 'Editing ' + str(page)
 				wikipedia.output(u'WRITE:	Adding %s bytes.' % str(len(wikitext)-len(state0)))
 #				wikipedia.showDiff(state1, wikitext)
-				page.put(wikitext)
+				page.put(wikitext, EditMsg)
 			except KeyboardInterrupt:
-				wikipedia.stopme()
 				quit()
 			except:
 				print 'ERROR:	Except raised while writing.'
 		else:
 			print 'Skipping ' + str(page)
 def docat(cat2):
-	site  = wikipedia.getSite()
-	cat = catlib.Category(site, cat2)
-	gen = pagegenerators.CategorizedPageGenerator(cat)
+	gen = pagegen.category(wiki.Page('Category:' + cat))
 	for page in gen:
 		if page.namespace() != 2 or page.namespace() != 3 or page.namespace() != 14:
 			process_article(page)
@@ -107,10 +102,7 @@ def main():
 	docat("Articles to be merged")
 	docat("Wikipedia articles needing copy edit")
 	docat("Articles needing additional references")
-	wikipedia.output(u'\nDone.')
-
+	print 'Done'
+	
 if __name__ == "__main__":
-	try:
-		main()
-	finally:
-		wikipedia.stopme()
+	main()
