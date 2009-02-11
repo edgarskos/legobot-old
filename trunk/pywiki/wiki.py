@@ -71,8 +71,11 @@ class API:
 		text = self.response.read()
 		newtext = simplejson.loads(text)
 		#errors should be handled now
-		if newtext.has_key('error'):
-			raise APIError(newtext['error'])
+		try:
+			if newtext.has_key('error'):
+				raise APIError(newtext['error'])
+		except AttributeError:
+			raise APIError(newtext)
 		#finish query-continues
 		if ('query-continue' in newtext) and self.qcontinue:
 			newtext = self.__longQuery(newtext)
@@ -179,6 +182,7 @@ class Page:
 			'summary':summary,
 			'token':token,
 		}
+		print 'Going to change [[%s]]' %(self.page)
 		if watch:
 			params['watch'] = ''
 		if newsection:
@@ -195,6 +199,10 @@ class Page:
 		if delta.seconds < 10:
 			print 'Sleeping %s seconds' %(10-delta.seconds)
 			time.sleep(10-delta.seconds)
+		else:
+			print 'Last editted %s seconds ago.' %delta.seconds
+			print 'Sleeping for 2 seconds'
+			time.sleep(2)
 		#update the file
 		d = datetime.now()
 		newtext = str(d.year) +'|'+ str(d.month) +'|'+ str(d.day) +'|'+ str(d.hour) +'|'+ str(d.minute) +'|'+ str(d.second)
@@ -366,7 +374,8 @@ def login(username = False):
 		print 'Successfully logged in on %s.' %(config.wiki)
 	else:
 		print 'Failed to login on %s.' %(config.wiki)
-		sys.exit()
+		raise APIError(query)
 
+	
 if __name__ == "__main__":
 	login()
