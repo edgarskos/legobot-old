@@ -24,11 +24,14 @@ def category(page, excludens = False):
 	list = []
 	res = result['query']['categorymembers']
 	for page in res:
-		if excludens:
-			if page['ns'] != int(excludens):
-				list.append(unicode(wiki.Page(page['title'])))
-		else:
-			list.append(unicode(wiki.Page(page['title'])))
+		try:
+			if excludens:
+				if page['ns'] != int(excludens):
+					list.append(wiki.Page(page['title']))
+			else:
+				list.append(wiki.Page(page['title']))
+		except UnicodeEncodeError:
+			pass
 	return list
 
 def prefixindex(page):

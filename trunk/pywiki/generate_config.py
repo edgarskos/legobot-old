@@ -7,6 +7,10 @@ file = open(CONFIG, 'w')
 content = '#!usr/bin/python\n\"\"\"Username to login/edit/query with\"\"\"'
 username = raw_input('Username to login/edit/query with: ')
 content += '\nusername = \'%s\'' %(username)
+commons = raw_input('Wikimedia Commons username, blank if none ')
+if len(commons) == 0:
+	commons = False
+content += '\n\"\"\"Wikimedia Commons username (False if none)\"\"\"\ncommons = \'' + str(commons) + '\''
 content += '\n\"\"\"Not necessary, but won\'t prompt you for password\"\"\"\n#password = \'\''
 quitonmess = raw_input('Quit when finding new messages? [t]rue, [f]alse: ')
 if quitonmess.lower() == ('t' or 'true'):

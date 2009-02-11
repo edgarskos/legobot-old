@@ -8,3 +8,4 @@ username = userconfig.username
 quitonmess = userconfig.quitonmess
 wiki = userconfig.wiki
 apipath = userconfig.apipath
+commons = userconfig.commons
