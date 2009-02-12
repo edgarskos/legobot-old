@@ -19,6 +19,9 @@ class NotLoggedIn(Exception):
 class UserBlocked(Exception):
 	"""User is blocked"""
 
+class LockedPage(Exception):
+	"""Page is protected and user doesn't have right to edit"""
+
 class NoPage(Exception):
 	"""Page does not exist"""
 
@@ -320,6 +323,15 @@ class Page:
 		if res.has_key('move'):
 			print 'Page move of %s to %s succeeded' (self.page, newtitle)
 		return res
+	def protectlevel(self):
+		params = {'action':'query','titles':self.page,'prop':'info','inprop':'protection'}
+		res = self.API.query(params)['query']['pages']
+		list = res[res.keys()[0]]['protection']
+		if len(list) == 0:
+			return False
+		else:
+			retrun list
+
 
 """
 Class that is mainly internal working, but contains information relevant
