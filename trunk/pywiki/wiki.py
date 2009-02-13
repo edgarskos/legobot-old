@@ -161,7 +161,7 @@ class Page:
 	def title(self):
 		return self.page
 	def get(self, force = False):
-		if self.redirect and (not force):
+		if self.isRedirect() and (not force):
 			raise IsRedirectPage(self.API.query({'action':'query','titles':self.page,'redirects':''})['query']['redirects'][0]['to'])
 		params = {
 			'action':'query',
