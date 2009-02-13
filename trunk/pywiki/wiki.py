@@ -145,7 +145,7 @@ class Page:
 		self.page = page
 		self.wiki = wiki
 #		self.__basicinfo = self.__basicinfo()
-		self.ns = self.__basicinfo['ns']
+#		self.ns = self.__basicinfo['ns']
 		self.Site = Site(self.wiki)
 	def __basicinfo(self):
 		params = {
