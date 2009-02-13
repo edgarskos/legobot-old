@@ -7,12 +7,12 @@
 
 import wiki
 #set up api
-API = wiki.API()
 
 """Gets all articles in a certain category and returns a list"""
 def category(page, excludens = False):
 	if not page.isCategory():
 		raise wiki.NotCategory(page.title())
+	API = wiki.API(wiki=page.site())
 	params = {
 		'action':'query',
 		'list':'categorymembers',
@@ -27,14 +27,15 @@ def category(page, excludens = False):
 		try:
 			if excludens:
 				if page['ns'] != int(excludens):
-					list.append(page['title'])
+					list.append(wiki.Page(page['title']))
 			else:
-				list.append(page['title'])
+				list.append(wiki.Page(page['title']))
 		except UnicodeEncodeError:
 			pass
 	return list
 
 def prefixindex(page):
+	API = wiki.API(wiki=page.site())
 	ns = page.namespace()
 	prefix = page.titlewonamespace() + '/'
 	params = {

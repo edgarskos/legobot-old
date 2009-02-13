@@ -2,16 +2,7 @@
 # -*- coding: utf-8  -*-
 """
 This script is a clone of [[en:User:SmackBot]]
-Syntax: python datebot.py [pagegenerator option]
-
-Pagegenerator options:
-
--file:       Update pages listed in a text file.
--ref:        Update pages transcluding from a given page.
--cat:        Update pages from the given category.
--links:      Update pages linked from a given page.
--page:       Update that page.
-
+Syntax: python datebot.py
 """
 
 #
@@ -20,14 +11,16 @@ Pagegenerator options:
 
 import re, sys, time
 import os
-sys.path.append('/home/legoktm/legobot2')
-import wiki, pagegen
+import wiki, pagegen, config
 
 # Define global constants
 readDelay  = 20	# seconds
 writeDelay = 60 # seconds
+usernames = {
+	'en.wikipedia':'Legobot II'
+}
 def checktalk():
-	page = wiki.Page(site, 'User:Legobot II/Stop')
+	page = wiki.Page('%s/Stop' %(usernames[config.wiki]))
 	try:
 		wikitext = page.get()
 	except:
@@ -42,8 +35,7 @@ def process_article(page):
 		# Fix Casing (Reduces the number of possible expressions)
 		wikitext = re.compile(r'\{\{\s*(template:|)fact', re.IGNORECASE).sub(r'{{Fact', wikitext)
 		# Fix some redirects
-		if not re.search('cnote', wikitext, re.I):
-			wikitext = re.compile(r'\{\{\s*(template:|)cn', re.IGNORECASE).sub(r'{{Fact', wikitext)
+		wikitext = re.compile(r'\{\{\s*(template:|)cn\}\}', re.IGNORECASE).sub(r'{{Fact}}', wikitext)
 		wikitext = re.compile(r'\{\{\s*(template:|)citation needed', re.IGNORECASE).sub(r'{{Fact', wikitext)
 		wikitext = re.compile(r'\{\{\s*(template:|)proveit', re.IGNORECASE).sub(r'{{Fact', wikitext)
 		wikitext = re.compile(r'\{\{\s*(template:|)sourceme', re.IGNORECASE).sub(r'{{Fact', wikitext)
@@ -68,26 +60,26 @@ def process_article(page):
 		if state1 != state0:
 			EditMsg = EditMsg + " and general fixes"
 		# If the text has changed at all since the state point, upload it
-		if (wikitext != state0):
-			try:
-				print 'Editing ' + str(page)
-				wikipedia.output(u'WRITE:	Adding %s bytes.' % str(len(wikitext)-len(state0)))
+		if wikitext != state0:
+#			try:
+			print 'Editing ' + page.title()
+			print 'WRITE:	Adding %s bytes.' % str(len(wikitext)-len(state0))
 #				wikipedia.showDiff(state1, wikitext)
-				page.put(wikitext, EditMsg)
-			except KeyboardInterrupt:
-				quit()
-			except:
-				print 'ERROR:	Except raised while writing.'
+			page.put(wikitext, EditMsg)
+#			except KeyboardInterrupt:
+#				quit()
+#			except:
+#				print 'ERROR:	Except raised while writing.'
 		else:
-			print 'Skipping ' + str(page)
+			print 'Skipping ' + page.title() + ' due to no changes made after state point.'
 def docat(cat2):
-	gen = pagegen.category(wiki.Page('Category:' + cat))
+	gen = pagegen.category(wiki.Page('Category:' + cat2))
 	for page in gen:
-		if page.namespace() != 2 or page.namespace() != 3 or page.namespace() != 14:
+		if page.namespace() == 0:
 			process_article(page)
 			checktalk()
 		else:
-			print 'Skipping %s because it is not in the mainspace' %(str(page))
+			print 'Skipping %s because it is not in the mainspace' %(page.title())
 	print 'Done with Category:%s' %(cat2)
 def main():
 	docat("Articles with unsourced statements")
@@ -99,10 +91,13 @@ def main():
 	docat("Articles lacking sources")
 	docat("Articles to be expanded")
 	docat("Articles with topics of unclear notability")
-	docat("Articles to be merged")
+#	docat("Articles to be merged")
 	docat("Wikipedia articles needing copy edit")
 	docat("Articles needing additional references")
 	print 'Done'
 	
 if __name__ == "__main__":
-	main()
+	while True:
+		main()
+		print 'Sleeping 60 seconds'
+		time.sleep(60)

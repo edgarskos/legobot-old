@@ -11,7 +11,7 @@ See COPYING for full License
 import urllib2, urllib, re, time, getpass, cookielib
 from datetime import datetime
 import config
-import simplejson, sys, os
+import simplejson, sys, os, difflib
 
 class NotLoggedIn(Exception):
 	"""User is not logged in"""
@@ -58,6 +58,7 @@ class API:
 			self.wiki = 'commons.wikimedia'
 		else:
 			self.wiki = wiki
+		self.login = login
 		self.debug = debug
 		self.qcontinue = qcontinue
 	def query(self, params, after = None, write = False):
@@ -80,12 +81,14 @@ class API:
 		self.request = urllib2.Request(config.apipath %(self.wiki), self.encodeparams, self.headers)
 #		print 'Querying API'
 		self.response = urllib2.urlopen(self.request)
-		self.cj.save(self.COOKIEFILE)
+		if self.login:
+			self.cj.save(self.COOKIEFILE)
+			self.cj.save(self.COOKIEFILE + 'old')
 		text = self.response.read()
 		newtext = simplejson.loads(text)
 		#errors should be handled now
 		try:
-			if newtext.has_key('error'):
+			if newtext.has_key('error') and not (self.login or write):
 				raise APIError(newtext['error'])
 		except AttributeError:
 			raise APIError(newtext)
@@ -137,16 +140,13 @@ class API:
 
 class Page:
 	
-	def __init__(self, page):
+	def __init__(self, page, wiki = config.wiki):
 		self.API = API()
 		self.page = page
-		self.__basicinfo = self.__basicinfo()
-		if self.__basicinfo.has_key('redirect'):
-			self.redirect = True
-		else:
-			self.redirect = False
+		self.wiki = wiki
+#		self.__basicinfo = self.__basicinfo()
 		self.ns = self.__basicinfo['ns']
-		self.Site = Site()
+		self.Site = Site(self.wiki)
 	def __basicinfo(self):
 		params = {
 			'action':'query',
@@ -183,7 +183,7 @@ class Page:
 			'intoken':'edit',
 			'titles':self.page
 		}
-		token = self.API.query(tokenparams)['query']['pages']
+		token = self.API.query(tokenparams, write = True)['query']['pages']
 		token = token[token.keys()[0]]['edittoken']
 #		print token
 
@@ -242,6 +242,10 @@ class Page:
 		else:
 			return self.page.split(':')[1]
 	def namespace(self):
+		if not self.__basicinfo:
+			self.__basicinfo = self.__basicinfo()
+		if not self.ns:
+			self.ns = self.__basicinfo['ns']
 		return self.ns
 	def lastedit(self, prnt = False):
 		params = {
@@ -286,6 +290,14 @@ class Page:
 		return self.namespace() == 14
 	def isImage(self):
 		return self.namespace() == 6
+	def isRedirect(self):
+		if not self.__basicinfo:
+			self.__basicinfo = self.__basicinfo()
+		if self.__basicinfo.has_key('redirect'):
+			self.redirect = True
+		else:
+			self.redirect = False
+		return self.redirect
 	def patrol(self, rcid):
 		params = {
 			'action':'patrol',
@@ -294,6 +306,8 @@ class Page:
 		}
 		self.API.query(params)
 	def exists(self):
+		if not self.__basicinfo:
+			self.__basicinfo = self.__basicinfo()
 		if self.__basicinfo.has_key('missing'):
 			return False
 		else:
@@ -315,9 +329,9 @@ class Page:
 			'token':token
 		}
 		if movetalk:
-			res = self.API.query(params,'&movetalk')
+			res = self.API.query(params,'&movetalk', write = True)
 		else:
-			res = self.API.query(params)
+			res = self.API.query(params, write = True)
 		if res.has_key('error'):
 			raise APIError(res['error'])
 		if res.has_key('move'):
@@ -327,11 +341,24 @@ class Page:
 		params = {'action':'query','titles':self.page,'prop':'info','inprop':'protection'}
 		res = self.API.query(params)['query']['pages']
 		list = res[res.keys()[0]]['protection']
+		#check if the page is protected
 		if len(list) == 0:
-			return False
-		else:
-			retrun list
-
+			#means the page isn't protected
+			return {}
+		retdict = {}
+		for dict in list:
+			if (dict['type'] == 'edit') and (not dict.has_key('source')):
+				retdict['edit'] = {'level':dict['level'],'expiry':dict['expiry']}
+			if (dict['type'] == 'move') and (not dict.has_key('source')):
+				retdict['move'] = {'level':dict['level'],'expiry':dict['expiry']}
+			if not (retdict.has_key('edit') or retdict.has_key('edit')):
+				if (dict['type'] == 'edit'):
+					retdict['edit'] = {'level':dict['level'],'expiry':dict['expiry'], 'cascaded':''}
+				if (dict['type'] == 'move'):
+					retdict['move'] = {'level':dict['level'],'expiry':dict['expiry'], 'cascaded':''}				
+		return retdict
+	def site(self):
+		return self.wiki
 
 """
 Class that is mainly internal working, but contains information relevant
@@ -401,7 +428,10 @@ def login(username = False):
 	else:
 		print 'Failed to login on %s.' %(config.wiki)
 		raise APIError(query)
-
+def showDiff(old, new):
+	diff = difflib.ndiff(old.splitlines(), new.splitlines())
+	for line in diff:
+		print line
 	
 if __name__ == "__main__":
 	login()
