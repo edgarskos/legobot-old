@@ -144,9 +144,9 @@ class Page:
 		self.API = API()
 		self.page = page
 		self.wiki = wiki
-#		self.__basicinfo = self.__basicinfo()
-#		self.ns = self.__basicinfo['ns']
-		self.Site = Site(self.wiki)
+#		self._basicinfo = self._basicinfo()
+#		self.ns = self._basicinfo['ns']
+		self.Site = Site()
 	def __basicinfo(self):
 		params = {
 			'action':'query',
@@ -242,10 +242,14 @@ class Page:
 		else:
 			return self.page.split(':')[1]
 	def namespace(self):
-		if not self.__basicinfo:
-			self.__basicinfo = self.__basicinfo()
-		if not self.ns:
-			self.ns = self.__basicinfo['ns']
+		try:
+			self._basicinfo
+		except AttributeError:
+			self._basicinfo = self.__basicinfo()
+		try:
+			return self.ns
+		except AttributeError:
+			self.ns = self._basicinfo['ns']
 		return self.ns
 	def lastedit(self, prnt = False):
 		params = {
@@ -291,9 +295,11 @@ class Page:
 	def isImage(self):
 		return self.namespace() == 6
 	def isRedirect(self):
-		if not self.__basicinfo:
-			self.__basicinfo = self.__basicinfo()
-		if self.__basicinfo.has_key('redirect'):
+		try:
+			self._basicinfo
+		except AttributeError:
+			self._basicinfo = self.__basicinfo()
+		if self._basicinfo.has_key('redirect'):
 			self.redirect = True
 		else:
 			self.redirect = False
@@ -306,9 +312,11 @@ class Page:
 		}
 		self.API.query(params)
 	def exists(self):
-		if not self.__basicinfo:
-			self.__basicinfo = self.__basicinfo()
-		if self.__basicinfo.has_key('missing'):
+		try:
+			self._basicinfo
+		except AttributeError:
+			self._basicinfo = self.__basicinfo()
+		if self._basicinfo.has_key('missing'):
 			return False
 		else:
 			return True
