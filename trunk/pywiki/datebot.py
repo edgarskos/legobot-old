@@ -65,7 +65,11 @@ def process_article(page):
 			print 'Editing ' + page.title()
 			print 'WRITE:	Adding %s bytes.' % str(len(wikitext)-len(state0))
 #				wikipedia.showDiff(state1, wikitext)
-			page.put(wikitext, EditMsg)
+			try:
+				page.put(wikitext, EditMsg)
+			except wiki.LockedPage:
+				print 'SKIP: ' + page.title() + ' is locked.'
+
 #			except KeyboardInterrupt:
 #				quit()
 #			except:

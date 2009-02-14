@@ -225,6 +225,8 @@ class Page:
 		#the actual write query
 		res=self.API.query(params, write = True)
 		if res.has_key('error'):
+			if res['error']['code'] == 'protectedpage':
+				raise LockedPage(res['error']['info'])
 			raise APIError(res['error'])
 		if res['edit']['result'] == 'Success':
 			print 'Changing [[%s]] was successful.' %self.page
