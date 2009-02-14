@@ -11,7 +11,11 @@ See COPYING for full License
 import urllib2, urllib, re, time, getpass, cookielib
 from datetime import datetime
 import config
-import simplejson, sys, os, difflib
+import simplejson, sys, os, difflib, StringIO
+try:
+	import gzip
+except ImportError:
+	gzip = False
 
 class NotLoggedIn(Exception):
 	"""User is not logged in"""
@@ -76,6 +80,8 @@ class API:
 			"User-agent": config.username,
 			"Content-length": len(self.encodeparams),
 		}
+		if gzip:
+			self.headers['Accept-Encoding'] = 'gzip'
 		self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
 		urllib2.install_opener(self.opener)
 		self.request = urllib2.Request(config.apipath %(self.wiki), self.encodeparams, self.headers)
@@ -85,10 +91,17 @@ class API:
 			self.cj.save(self.COOKIEFILE)
 			self.cj.save(self.COOKIEFILE + 'old')
 		text = self.response.read()
-		newtext = simplejson.loads(text)
+		if gzip:
+			compressedstream = StringIO.StringIO(text)
+			gzipper = gzip.GzipFile(fileobj=compressedstream)
+			data = gzipper.read()
+			#print data
+		else:
+			data = text
+		newtext = simplejson.loads(data)
 		#errors should be handled now
 		try:
-			if newtext.has_key('error') and not (self.login or write):
+			if newtext.has_key('error') and not (self.login or write): #so that way write errors are handled seperatly
 				raise APIError(newtext['error'])
 		except AttributeError:
 			raise APIError(newtext)
