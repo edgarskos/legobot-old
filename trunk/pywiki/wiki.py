@@ -160,6 +160,10 @@ class Page:
 #		self._basicinfo = self._basicinfo()
 #		self.ns = self._basicinfo['ns']
 		self.Site = Site()
+	def __str__(self):
+		return self.page
+	def __repr__(self):
+		return 'wiki.Page{\'%s\'}' %self.page
 	def __basicinfo(self):
 		params = {
 			'action':'query',
@@ -275,7 +279,6 @@ class Page:
 		}
 		res = self.API.query(params)['query']['pages']
 		ret = res[res.keys()[0]]['revisions'][0]
-		print ret
 		if prnt:
 			print 'The last edit on %s was made by: %s with the comment of: %s.' %(page, ret['user'], ret['comment'])
 		return ret
@@ -382,6 +385,14 @@ class Page:
 		return retdict
 	def site(self):
 		return self.wiki
+	def categories(self):
+		params = {'action':'query','titles':self.page,'prop':'categories'}
+		res = self.API.query(params)['query']['pages']
+		list = []
+		for item in res[res.keys()[0]]['categories']:
+			list.append(wiki.Page(item['title']))
+		return list
+		
 
 """
 Class that is mainly internal working, but contains information relevant
