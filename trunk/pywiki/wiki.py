@@ -190,6 +190,7 @@ class Page:
 		if res.keys()[0] == '-1':
 			raise NoPage(self.page)
 		content = res[res.keys()[0]]['revisions'][0]['*']
+		self.content = content.encode('utf-8')
 		return content.encode('utf-8')
 
 	def put(self, newtext, summary, watch = False, newsection = False):
@@ -390,8 +391,29 @@ class Page:
 		res = self.API.query(params)['query']['pages']
 		list = []
 		for item in res[res.keys()[0]]['categories']:
-			list.append(wiki.Page(item['title']))
+			list.append(Page(item['title']))
 		return list
+	def templates(self):
+		params = {'action':'query','titles':self.page,'prop':'templates','tllimit':'500'}
+		res = self.API.query(params)['query']['pages']
+		list = res[res.keys()[0]]['templates']
+		rawlist = []
+		for i in list:
+			rawlist.append(i['title'])
+		return rawlist
+	def whatlinkshere(self, onlyredir = False):
+		params = {'action':'query','list':'backlinks','bltitle':self.page,'bllimit':'500'}
+		if onlyredir:
+			params['blfilterredir'] = 'redirects'
+		res = self.API.query(params)['query']['backlinks']
+		list = []
+		for id in res.keys():
+			title = res[id]['title']
+			list.append(Page(title))
+		return list
+	def redirects(self)
+		return self.whatlinkshere(onlyredir = True)
+		
 		
 
 """
@@ -462,10 +484,27 @@ def login(username = False):
 	else:
 		print 'Failed to login on %s.' %(config.wiki)
 		raise APIError(query)
-def showDiff(old, new):
-	diff = difflib.ndiff(old.splitlines(), new.splitlines())
-	for line in diff:
-		print line
+def showDiff(oldtext, newtext):
+    """
+    Prints a string showing the differences between oldtext and newtext.
+    The differences are highlighted (only on Unix systems) to show which
+    changes were made.
+    """
+    # For information on difflib, see http://pydoc.org/2.6/difflib.html
+    color = {
+        '+': 'lightgreen',
+        '-': 'lightred',
+    }
+    diff = u''
+    colors = []
+    # This will store the last line beginning with + or -.
+    lastline = None
+    # For testing purposes only: show original, uncolored diff
+    #     for line in difflib.ndiff(oldtext.splitlines(), newtext.splitlines()):
+    #         print line
+    for line in difflib.ndiff(oldtext.splitlines(), newtext.splitlines()):
+		if ('-' or '+') == line[0]:
+			print line
 	
 if __name__ == "__main__":
 	login()
