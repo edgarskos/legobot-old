@@ -56,6 +56,8 @@ def process_article(page):
 #		wikitext = re.compile(r'\{\{\s*merge(.*?)\}\}', re.IGNORECASE).sub(r'{{Merge\\1|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 		wikitext = re.compile(r'\{\{\s*copyedit\}\}', re.IGNORECASE).sub(r'{{Copyedit|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 		wikitext = re.compile(r'\{\{\s*refimprove\}\}', re.IGNORECASE).sub(r'{{Refimprove|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
+		wikitext = re.compile(r'\{\{\s*primary sources\}\}', re.IGNORECASE).sub(r'{{Primary sources|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
+
 		EditMsg = "Date maintenance tags"
 		if state1 != state0:
 			EditMsg = EditMsg + " and general fixes"
@@ -98,6 +100,7 @@ def main():
 #	docat("Articles to be merged")
 	docat("Wikipedia articles needing copy edit")
 	docat("Articles needing additional references")
+	docat("Articles lacking reliable references")
 	print 'Done'
 	
 if __name__ == "__main__":
