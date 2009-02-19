@@ -411,7 +411,7 @@ class Page:
 			title = res[id]['title']
 			list.append(Page(title))
 		return list
-	def redirects(self)
+	def redirects(self):
 		return self.whatlinkshere(onlyredir = True)
 		
 		
