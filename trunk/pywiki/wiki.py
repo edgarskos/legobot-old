@@ -472,7 +472,7 @@ class MySQL:
 			raise MySQLError('MySQLdb not installed.  MySQL class cannot be used')
 		self.wiki = wiki + '_p'
 		if not host:
-			self.host = self.query(q="SELECT server FROM wiki WHERE dbname = '%s_p';" %(wiki), db='sql', host='toolserver')[0][0]
+			self.host = self.query(q="SELECT server FROM wiki WHERE dbname = '%s_p';" %(wiki), db='toolserver', host='sql')[0][0]
 		else:
 			self.host = host
 		if config.ts:
@@ -485,7 +485,12 @@ class MySQL:
 		res = cur.fetchall()
 		cur.close()
 		return res
-
+	def editcount(user):
+		res = self.query("SELECT user_editcount FROM user WHERE user_name = '%s';" %(user))
+		try:
+			return res[0][0]
+		except IndexError:
+			raise NoUsername('%s doesnt exist on %s' %(user, self.wiki))
 """
 Other functions
 """
