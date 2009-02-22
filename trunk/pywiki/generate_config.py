@@ -1,9 +1,5 @@
 #!usr/bin/python
 import os, sys
-try:
-	import wiki
-except ImportError:
-	sys.exit('Error: userconfig.py needs to be created in the same directory as wiki.py')
 CONFIG = os.environ['PWD'] + '/userconfig.py'
 #if os.path.isfile(CONFIG):
 #	sys.exit('Your user-config.py already exists.')
@@ -41,6 +37,7 @@ def main():
 def checklogin():
 	resp = raw_input('Would you now like to login? ([y]es or [n]o)')
 	if resp == ('y' or 'yes'):
+		import wiki
 		wiki.login()
 	else:
 		sys.exit()
