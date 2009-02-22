@@ -20,7 +20,7 @@ def main():
 		mess = False
 	content += '\n\"\"\"Quit when finding new messages?\"\"\"\nquitonmess = ' + str(mess)
 	wiki = raw_input("""Wiki to query... in format of 'xx.project' """)
-	ts = raw_inpu(""" Toolserver Account Username ([f]alse if none) """)
+	ts = raw_input(""" Toolserver Account Username ([f]alse if none) """)
 	if ts.lower() == ('f' or 'false'):
 		ts = False
 	content += '\n\"\"\" Toolserver Account Username (False if none) \"\"\"'
