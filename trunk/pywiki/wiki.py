@@ -465,7 +465,7 @@ Wiki should be in the form of langproject (ex. enwiki) without the '_p' on the e
 Host is either s1, s2, or s3.  Can be left blank
 """
 class MySQL:
-	def __iter__(self, wiki, host = False):
+	def __init__(self, wiki, host = False):
 		try:
 			import MySQLdb
 		except ImportError:
@@ -485,7 +485,7 @@ class MySQL:
 		res = cur.fetchall()
 		cur.close()
 		return res
-	def editcount(user):
+	def editcount(self, user):
 		res = self.query("SELECT user_editcount FROM user WHERE user_name = '%s';" %(user))
 		try:
 			return res[0][0]
