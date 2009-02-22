@@ -8,11 +8,14 @@
 import wiki
 #set up api
 
-"""Gets all articles in a certain category and returns a list"""
-def category(page, excludens = False):
+"""
+Gets all articles in a certain category and returns a list
+"""
+def category(page):
 	if not page.isCategory():
 		raise wiki.NotCategory(page.title())
 	API = wiki.API(wiki=page.site())
+	print 'Getting [[%s]]...' %page.title()
 	params = {
 		'action':'query',
 		'list':'categorymembers',
@@ -25,15 +28,13 @@ def category(page, excludens = False):
 	res = result['query']['categorymembers']
 	for page in res:
 		try:
-			if excludens:
-				if page['ns'] != int(excludens):
-					list.append(wiki.Page(page['title']))
-			else:
-				list.append(wiki.Page(page['title']))
+			list.append(wiki.Page(page['title']))
 		except UnicodeEncodeError:
 			pass
 	return list
-
+"""
+Unreliable pagegenerator at the moment...
+"""
 def prefixindex(page):
 	API = wiki.API(wiki=page.site())
 	ns = page.namespace()
@@ -52,3 +53,38 @@ def prefixindex(page):
 		if not (wikipage in list):
 			list.append(wikipage)
 	return list
+"""
+Returns a list with pages
+"""
+def recentchanges(limit = 500, nobot = True, onlyanon = False, hidepatrolled = True, nponly = False):
+	rcshow = []
+	if nobot:
+		rcshow.append('!bot')
+	if onlyanon:
+		rcshow.append('anon')
+#	if hidepatrolled:
+#		rcshow.append('!patrolled')
+	rcshowparam = ''
+	if len(rcshow) != 0:
+		for i in rcshow:
+			if i == rcshow[len(rcshow)-1]: #meaning it is the last one..
+				rcshowparam += i
+			else:
+				rcshowparam += i + '|'
+	params = {
+		'action':'query',
+		'list':'recentchanges',
+		'rcshow':rcshowparam,
+		'rcprop':'title',
+		'rclimit':limit
+	}
+	if nponly:
+		params['rctype'] = 'new'
+	API = wiki.API(qcontinue=False)
+	res = API.query(params)['query']['recentchanges']
+	list = []
+	for page in res:
+		list.append(wiki.Page(page['title']))
+
+	return list
+	

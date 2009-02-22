@@ -17,28 +17,28 @@ try:
 except ImportError:
 	gzip = False
 
-class NotLoggedIn(Exception):
+class APIError(Exception):
+	"""General API error and base class for all errors"""
+
+class NotLoggedIn(APIError):
 	"""User is not logged in"""
 
-class UserBlocked(Exception):
+class UserBlocked(APIError):
 	"""User is blocked"""
 
-class LockedPage(Exception):
+class LockedPage(APIError):
 	"""Page is protected and user doesn't have right to edit"""
 
-class NoPage(Exception):
+class NoPage(APIError):
 	"""Page does not exist"""
 
-class IsRedirectPage(Exception):
+class IsRedirectPage(APIError):
 	"""Page is a redirect to target"""
 
-class APIError(Exception):
-	"""General API error"""
-
-class NotCategory(Exception):
+class NotCategory(APIError):
 	"""When expected page should be category, but is not"""
 
-class LoginError(Exception):
+class LoginError(APIError):
 	"""General login error"""
 
 class WrongPass(LoginError):
@@ -47,6 +47,14 @@ class WrongPass(LoginError):
 class LoginThrottled(LoginError):
 	"""Login throttled by MediaWiki"""
 
+class NoUsername(APIError):
+	"""No username given in userconfig.py"""
+
+class MySQLError(Exception):
+	"""Base class for all MySQL errors"""
+
+class NoTSUsername(NoUsername):
+	"""No Toolserver username given, but trying to use MySQL class"""
 class API:
 	
 	def __init__(self, wiki = config.wiki, login=False, debug=False, qcontinue = True):
@@ -252,11 +260,8 @@ class Page:
 			print 'Changing [[%s]] failed.' %self.page
 			raise APIError(res)
 		
-	def titlewonamespace(self, ns=False):
-		if not ns:
-			ns = Page(self.page).namespace()
-		else:
-			ns = int(ns)
+	def titlewonamespace(self):
+		ns = self.namespace()
 		if ns == 0:
 			return self.page
 		else:
@@ -313,6 +318,8 @@ class Page:
 		return self.namespace() == 14
 	def isImage(self):
 		return self.namespace() == 6
+	def isTemplate(self):
+		return self.namespace() == 10
 	def isRedirect(self):
 		try:
 			self._basicinfo
@@ -407,12 +414,22 @@ class Page:
 			params['blfilterredir'] = 'redirects'
 		res = self.API.query(params)['query']['backlinks']
 		list = []
-		for id in res.keys():
-			title = res[id]['title']
+		for id in res:
+			title = id['title']
 			list.append(Page(title))
 		return list
 	def redirects(self):
 		return self.whatlinkshere(onlyredir = True)
+	def purge(self):
+		params = {'action':'purge','titles':self.page}
+		res = self.API.query(params)
+		try:
+			if res['purge'][0].has_key('purged'):
+				print '[[%s]] was succesfully purged.' %self.page
+		except KeyError:
+			raise APIError(res)
+		except IndexError:
+			raise APIError(res)
 		
 		
 
@@ -440,6 +457,34 @@ class Site:
 			texttons[resd[ns]['*']] = int(ns)
 		self.nslist = (nstotext,texttons)
 		return self.nslist
+
+
+"""
+Class that has MySQL Functions for toolserver users
+Wiki should be in the form of langproject (ex. enwiki) without the '_p' on the end
+Host is either s1, s2, or s3.  Can be left blank
+"""
+class MySQL:
+	def __iter__(self, wiki, host = False):
+		try:
+			import MySQLdb
+		except ImportError:
+			raise MySQLError('MySQLdb not installed.  MySQL class cannot be used')
+		self.wiki = wiki + '_p'
+		if not host:
+			self.host = self.query(q="SELECT server FROM wiki WHERE dbname = '%s_p';" %(wiki), db='sql', host='toolserver')[0][0]
+		else:
+			self.host = host
+		if config.ts:
+			self.username = config.ts
+		else:
+			raise NoTSUsername
+	def query(self, q, db = self.wiki, host=self.host):
+		conn = MySQLdb.connect(db=db, host=host, read_default_file="/home/%s/.my.cnf" %(self.username))
+		cur = conn.cursor()
+		res = cur.fetchall()
+		cur.close()
+		return res
 
 """
 Other functions
@@ -490,20 +535,15 @@ def showDiff(oldtext, newtext):
     The differences are highlighted (only on Unix systems) to show which
     changes were made.
     """
-    # For information on difflib, see http://pydoc.org/2.6/difflib.html
-    color = {
-        '+': 'lightgreen',
-        '-': 'lightred',
-    }
-    diff = u''
-    colors = []
     # This will store the last line beginning with + or -.
     lastline = None
     # For testing purposes only: show original, uncolored diff
     #     for line in difflib.ndiff(oldtext.splitlines(), newtext.splitlines()):
     #         print line
     for line in difflib.ndiff(oldtext.splitlines(), newtext.splitlines()):
-		if ('-' or '+') == line[0]:
+		if '-' == line[0]:
+			print line
+		elif '+' == line[0]:
 			print line
 	
 if __name__ == "__main__":
