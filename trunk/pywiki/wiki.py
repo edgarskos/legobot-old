@@ -458,39 +458,6 @@ class Site:
 		self.nslist = (nstotext,texttons)
 		return self.nslist
 
-
-"""
-Class that has MySQL Functions for toolserver users
-Wiki should be in the form of langproject (ex. enwiki) without the '_p' on the end
-Host is either s1, s2, or s3.  Can be left blank
-"""
-class MySQL:
-	def __init__(self, wiki, host = False):
-		try:
-			import MySQLdb
-		except ImportError:
-			raise MySQLError('MySQLdb not installed.  MySQL class cannot be used')
-		self.wiki = wiki + '_p'
-		if not host:
-			self.host = self.query(q="SELECT server FROM wiki WHERE dbname = '%s_p';" %(wiki), db='toolserver', host='sql')[0][0]
-		else:
-			self.host = host
-		if config.ts:
-			self.username = config.ts
-		else:
-			raise NoTSUsername
-	def query(self, q, db = self.wiki, host=self.host):
-		conn = MySQLdb.connect(db=db, host=host, read_default_file="/home/%s/.my.cnf" %(self.username))
-		cur = conn.cursor()
-		res = cur.fetchall()
-		cur.close()
-		return res
-	def editcount(self, user):
-		res = self.query("SELECT user_editcount FROM user WHERE user_name = '%s';" %(user))
-		try:
-			return res[0][0]
-		except IndexError:
-			raise NoUsername('%s doesnt exist on %s' %(user, self.wiki))
 """
 Other functions
 """
