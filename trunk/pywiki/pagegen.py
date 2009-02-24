@@ -5,8 +5,7 @@
 #
 # All pages should be in the wiki.Page() format
 
-import wiki
-#set up api
+import wiki, config
 
 """
 Gets all articles in a certain category and returns a list
@@ -33,7 +32,24 @@ def category(page):
 			pass
 	return list
 """
-Unreliable pagegenerator at the moment...
+Returns pages that transclude a certain template
+"""
+def transclude(page):
+	API = wiki.API(wiki=page.site())
+	print 'Getting references to [[%s]]...' %(page.title())
+	params = {
+		'action':'query',
+		'list':'embeddedin',
+		'eititle':page.title(),
+		'eilimit':'500',
+	}
+	res = API.query(params)
+	list = []
+	for page in res['query']['embeddedin']:
+		list.append(wiki.Page(page['title']))
+	return list
+"""
+Returns list of pages with prefix of the page ([[Special:PrefixIndex]])
 """
 def prefixindex(page):
 	API = wiki.API(wiki=page.site())
@@ -41,22 +57,21 @@ def prefixindex(page):
 	prefix = page.titlewonamespace() + '/'
 	params = {
 		'action':'query',
-		'list':'alllinks',
-		'alprefix':prefix,
-		'alnamespace':ns,
-		'allimit':'500',
+		'list':'allpages',
+		'apprefix':prefix,
+		'apnamespace':ns,
+		'aplimit':'500',
 	}
-	res = API.query(params)['query']['alllinks']
+	res = API.query(params)['query']['allpages']
 	list = []
 	for page in res:
-		wikipage = wiki.Page(page['title'])
-		if not (wikipage in list):
-			list.append(wikipage)
+		list.append(wiki.Page(page['title']))
 	return list
 """
-Returns a list with pages
+Returns a list of articles that were recently changed ([[Special:RecentChanges]])
+If nponly = True, returns only newpages ([[Special:NewPages]])
 """
-def recentchanges(limit = 500, nobot = True, onlyanon = False, hidepatrolled = True, nponly = False):
+def recentchanges(limit = 500, nobot = True, onlyanon = False, hidepatrolled = True, nponly = False, wiki=config.wiki):
 	rcshow = []
 	if nobot:
 		rcshow.append('!bot')
@@ -80,7 +95,7 @@ def recentchanges(limit = 500, nobot = True, onlyanon = False, hidepatrolled = T
 	}
 	if nponly:
 		params['rctype'] = 'new'
-	API = wiki.API(qcontinue=False)
+	API = wiki.API(qcontinue=False, wiki=wiki)
 	res = API.query(params)['query']['recentchanges']
 	list = []
 	for page in res:
