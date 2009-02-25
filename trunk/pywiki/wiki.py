@@ -201,7 +201,13 @@ class Page:
 		self.content = content.encode('utf-8')
 		return content.encode('utf-8')
 
-	def put(self, newtext, summary, watch = False, newsection = False):
+	def put(self, newtext, summary=False, watch = False, newsection = False):
+		#set the summary
+		if not summary:
+			try:
+				summary = EditSummary
+			except NameError:
+				summary = '[[WP:BOT|Bot]]: Automated edit' 
 		#get the token
 		tokenparams = {
 			'action':'query',
@@ -289,6 +295,7 @@ class Page:
 			print 'The last edit on %s was made by: %s with the comment of: %s.' %(page, ret['user'], ret['comment'])
 		return ret
 	def istalk(self):
+		self.namespace()
 		if self.ns != -1 or self.ns != -2:
 			if self.ns%2 == 0:
 				return False
@@ -306,14 +313,14 @@ class Page:
 		nsnum = self.Site.namespacelist()[1][nstext]
 		if nsnum == -1 or nsnum == -2:
 			print 'Cannot toggle the talk of a Special or Media page.'
-			return self.page
+			return Page(self.page)
 		istalk = self.istalk()
 		if istalk:
 			nsnewtext = self.Site.namespacelist()[0][nsnum-1]
 		else:
 			nsnewtext = self.Site.namespacelist()[0][nsnum+1]
 		tt = nsnewtext + ':' + self.page.split(':')[1]
-		return tt
+		return Page(tt)
 	def isCategory(self):
 		return self.namespace() == 14
 	def isImage(self):
@@ -501,6 +508,10 @@ def login(username = False):
 	else:
 		print 'Failed to login on %s.' %(config.wiki)
 		raise APIError(query)
+def setAction(summary):
+	global EditSummary
+	EditSummary = summary
+
 def showDiff(oldtext, newtext):
     """
     Prints a string showing the differences between oldtext and newtext.
