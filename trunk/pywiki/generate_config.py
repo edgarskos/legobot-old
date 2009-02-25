@@ -25,7 +25,7 @@ def main():
 		ts = False
 	content += '\n\"\"\" Toolserver Account Username (False if none) \"\"\"'
 	if ts:
-		content += '\nts = \'%s\'' %(ts)
+		content += '\nts = \'%s\'' %(ts.lower())
 	else:
 		content += '\nts = ' + str(ts)
 	content += '\n\"\"\" Wiki to query... in format of \'xx.project\' \"\"\"\nwiki = \'%s\'' %(wiki)
