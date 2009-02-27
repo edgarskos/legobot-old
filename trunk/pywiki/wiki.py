@@ -94,7 +94,10 @@ class API:
 		urllib2.install_opener(self.opener)
 		self.request = urllib2.Request(config.apipath %(self.wiki), self.encodeparams, self.headers)
 #		print 'Querying API'
-		self.response = urllib2.urlopen(self.request)
+		try:
+			self.response = urllib2.urlopen(self.request)
+		except urllib2.URLError, e:
+			raise APIError('urllib2.URLError:' + e)
 		if self.login:
 			self.cj.save(self.COOKIEFILE)
 			self.cj.save(self.COOKIEFILE + 'old')
@@ -531,3 +534,9 @@ def showDiff(oldtext, newtext):
 	
 if __name__ == "__main__":
 	login()
+try:
+	x=sys.modules['wiki']
+	print 'Logged in as %s on %s.' %(config.username, config.wiki)
+except KeyError:
+	#do nothing
+	0
