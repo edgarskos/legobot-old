@@ -35,8 +35,8 @@ rs = re.findall('(.*)-(.*)-(.*) (.*),(.*) \[main\] INFO - Batch job completed; e
 runstamptext = months[str(int(rs[1]))]+' '+rs[2]+ ', '+rs[0]+' at '+rs[3]+':'+rs[4]
 
 def finderrors(logtext):
-	if re.search(r'\[main\] ERROR - (.*)at', logtext):
-		error = re.findall('\[main\] ERROR - (.*)at', logtext)
+	if re.search(r'\[main\] ERROR - (.*?)\n', logtext):
+		error = re.findall('\[main\] ERROR - (.*?)\n', logtext)
 		return str(error[0]) + '...'
 	else:
 		return 'No error occurred.'
