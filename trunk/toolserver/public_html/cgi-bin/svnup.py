@@ -38,10 +38,11 @@ if value:
 		passcode = ''
 		run = True
 		execute = getoutput('cd /home/legoktm; svn up')
-		execute = getoutput('cd /home/legoktm; svn up pywiki')
-		execute = getoutput('cd /home/legoktm; svn up legobot2')
-		execute = getoutput('cd /home/legoktm; svn up pywikir')
+		execute += getoutput('cd /home/legoktm; svn up pywiki')
+		execute += getoutput('cd /home/legoktm; svn up legobot2')
+		execute += getoutput('cd /home/legoktm; svn up pywikir')
 		newcont = execute.replace('.py','.py<br />')
+		newcont = newcont.replace('\n','<br />')
 		content = """\
 		<h2>Result</h2><br />
 		%s
