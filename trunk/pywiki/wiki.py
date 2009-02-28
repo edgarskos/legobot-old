@@ -1,4 +1,5 @@
 #!usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 
 Custom library for interfacing with MediaWiki through API
@@ -11,7 +12,7 @@ See COPYING for full License
 import urllib2, urllib, re, time, getpass, cookielib
 from datetime import datetime
 import config
-import simplejson, sys, os, difflib, StringIO
+import simplejson, sys, os, difflib, StringIO, hashlib
 try:
 	import gzip
 except ImportError:
@@ -28,6 +29,9 @@ class UserBlocked(APIError):
 
 class LockedPage(APIError):
 	"""Page is protected and user doesn't have right to edit"""
+
+class MoveFailed(APIError):
+	"""Move fails for any reason"""
 
 class NoPage(APIError):
 	"""Page does not exist"""
@@ -50,14 +54,17 @@ class LoginThrottled(LoginError):
 class NoUsername(APIError):
 	"""No username given in userconfig.py"""
 
+class Maxlag(APIError):
+	"""Maxlag is too high"""
 class MySQLError(Exception):
 	"""Base class for all MySQL errors"""
 
 class NoTSUsername(NoUsername):
 	"""No Toolserver username given, but trying to use MySQL class"""
+
 class API:
 	
-	def __init__(self, wiki = config.wiki, login=False, debug=False, qcontinue = True):
+	def __init__(self, wiki = config.wiki, login=False, debug=False, qcontinue = True, maxlag = config.maxlag):
 		#set up the cookies
 		self.COOKIEFILE = os.environ['PWD'] + '/cookies/'+ config.username +'.data'
 		self.COOKIEFILE = self.COOKIEFILE.replace(' ','_')
@@ -73,11 +80,16 @@ class API:
 		self.login = login
 		self.debug = debug
 		self.qcontinue = qcontinue
-	def query(self, params, after = None, write = False):
+		self.maxlag = maxlag
+	def query(self, params, after = None, write = False, maxlagtries = 0):
+		self.maxlagtries = maxlagtries
+		self.write = write
+		self.after = after
 		if os.path.isfile(self.COOKIEFILE):
 			self.cj.load(self.COOKIEFILE)
 		self.params = params
 		self.params['format'] = 'json'
+		self.params['maxlag'] = self.maxlag
 		self.encodeparams = urllib.urlencode(self.params)
 		if after:
 			self.encodeparams += after
@@ -109,11 +121,19 @@ class API:
 			#print data
 		else:
 			data = text
+		
 		newtext = simplejson.loads(data)
 		#errors should be handled now
 		try:
-			if newtext.has_key('error') and not (self.login or write): #so that way write errors are handled seperatly
-				raise APIError(newtext['error'])
+			if newtext.has_key('error') and not (self.login or self.write): #so that way write errors are handled seperatly
+				if newtext['error']['code'] == 'maxlag':
+					print 'Sleeping for 5 seconds due to database lag.'
+					self.maxlagtries += 1
+					if self.maxlagtries >= 10:
+						raise APIError('Maxlag is too high right now.  Please try later')
+					time.sleep(5)
+					newtext = self.query(self.params, self.after, self.write, self.maxlagtries)
+				raise Maxlag(newtext['error'])
 		except AttributeError:
 			raise APIError(newtext)
 		#finish query-continues
@@ -170,7 +190,7 @@ class Page:
 		self.wiki = wiki
 #		self._basicinfo = self._basicinfo()
 #		self.ns = self._basicinfo['ns']
-		self.Site = Site()
+		self.Site = Site(wiki=self.wiki)
 	def __str__(self):
 		return self.page
 	def __repr__(self):
@@ -203,39 +223,8 @@ class Page:
 		content = res[res.keys()[0]]['revisions'][0]['*']
 		self.content = content.encode('utf-8')
 		return content.encode('utf-8')
-
-	def put(self, newtext, summary=False, watch = False, newsection = False):
-		#set the summary
-		if not summary:
-			try:
-				summary = EditSummary
-			except NameError:
-				summary = '[[WP:BOT|Bot]]: Automated edit' 
-		#get the token
-		tokenparams = {
-			'action':'query',
-			'prop':'info',
-			'intoken':'edit',
-			'titles':self.page
-		}
-		token = self.API.query(tokenparams, write = True)['query']['pages']
-		token = token[token.keys()[0]]['edittoken']
-#		print token
-
-		#do the edit
-		params = {
-			'action':'edit',
-			'title':self.page,
-			'text':newtext,
-			'summary':summary,
-			'token':token,
-		}
-		print 'Going to change [[%s]]' %(self.page)
-		if watch:
-			params['watch'] = ''
-		if newsection:
-			params['section'] = 'new'
-		#check if we have waited 10 seconds since the last edit 
+	def __updatetime(self):
+		#check if we have waited 10 seconds since the last edit/move 
 		FILE = os.environ['PWD'] + '/cookies/lastedit.data'
 		try:
 			text = open(FILE, 'r').read()
@@ -256,8 +245,42 @@ class Page:
 		newtext = str(d.year) +'|'+ str(d.month) +'|'+ str(d.day) +'|'+ str(d.hour) +'|'+ str(d.minute) +'|'+ str(d.second)
 		write = open(FILE, 'w')
 		write.write(newtext)
-		write.close()
-		#the actual write query
+		write.close()	
+	def put(self, newtext, summary=False, watch = False, newsection = False):
+		#set the summary
+		if not summary:
+			try:
+				summary = EditSummary
+			except NameError:
+				summary = '[[WP:BOT|Bot]]: Automated edit' 
+		#get the token
+		tokenparams = {
+			'action':'query',
+			'prop':'info',
+			'intoken':'edit',
+			'titles':self.page
+		}
+		res = self.API.query(tokenparams, write = True)['query']['pages']
+		edittoken = res[res.keys()[0]]['edittoken']
+		timestamp = res[res.keys()[0]]['revisions'][0]['timestamp']
+		md5 = hashlib.md5(newtext).hexdigest()
+
+		#do the edit
+		params = {
+			'action':'edit',
+			'title':self.page,
+			'text':newtext,
+			'summary':summary,
+			'token':edittoken,
+			'starttimestamp':timestamp,
+			'md5':md5,
+		}
+		print 'Going to change [[%s]]' %(self.page)
+		if watch:
+			params['watch'] = ''
+		if newsection:
+			params['section'] = 'new'
+		self.__updatetime()
 		res=self.API.query(params, write = True)
 		if res.has_key('error'):
 			if res['error']['code'] == 'protectedpage':
@@ -357,6 +380,7 @@ class Page:
 		else:
 			return True
 	def move(self, newtitle, summary, movetalk = True):
+		self.newtitle = newtitle.decode('utf-8').encode('utf-8')
 		tokenparams = {
 			'action':'query',
 			'prop':'info',
@@ -368,19 +392,27 @@ class Page:
 		params = {
 			'action':'move',
 			'from':self.page,
-			'to':newtitle,
+			'to':self.newtitle,
 			'reason':summary,
 			'token':token
 		}
+		self.__updatetime()
 		if movetalk:
 			res = self.API.query(params,'&movetalk', write = True)
 		else:
 			res = self.API.query(params, write = True)
 		if res.has_key('error'):
-			raise APIError(res['error'])
+				if (res['error']['info'] == 'articleexists') or (res['error']['code'] == 'articleexists'):
+					raise MoveFailed(res['error'])
+				else:
+					raise APIError(res['error'])	
 		if res.has_key('move'):
-			print 'Page move of %s to %s succeeded' (self.page, newtitle)
+			try:
+				print 'Page move of %s to %s succeeded' %(self.page, self.newtitle.encode('utf-8'))
+			except UnicodeDecodeError:
+				print 'Page move of %s succeeded' %(self.page)
 		return res
+		
 	def protectlevel(self):
 		params = {'action':'query','titles':self.page,'prop':'info','inprop':'protection'}
 		res = self.API.query(params)['query']['pages']
@@ -448,9 +480,9 @@ Class that is mainly internal working, but contains information relevant
 to the wiki site.
 """
 class Site:
-	def __iter__(self, wiki = config.wiki):
+	def __init__(self, wiki):
 		self.wiki = wiki
-		self.API = API()
+		self.API = API(self.wiki)
 	def namespacelist(self):
 		params = {
 			'action':'query',
@@ -516,17 +548,10 @@ def setAction(summary):
 	EditSummary = summary
 
 def showDiff(oldtext, newtext):
-    """
-    Prints a string showing the differences between oldtext and newtext.
-    The differences are highlighted (only on Unix systems) to show which
-    changes were made.
-    """
-    # This will store the last line beginning with + or -.
-    lastline = None
-    # For testing purposes only: show original, uncolored diff
-    #     for line in difflib.ndiff(oldtext.splitlines(), newtext.splitlines()):
-    #         print line
-    for line in difflib.ndiff(oldtext.splitlines(), newtext.splitlines()):
+	"""
+	Prints a string showing the differences between oldtext and newtext.
+	"""
+	for line in difflib.ndiff(oldtext.splitlines(), newtext.splitlines()):
 		if '-' == line[0]:
 			print line
 		elif '+' == line[0]:

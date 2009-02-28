@@ -11,7 +11,11 @@ def main():
 	commons = raw_input('Wikimedia Commons username, blank if none ')
 	if len(commons) == 0:
 		commons = False
-	content += '\n\"\"\"Wikimedia Commons username (False if none)\"\"\"\ncommons = \'' + str(commons) + '\''
+	if commons:
+		content += '\n\"\"\"Wikimedia Commons username (False if none)\"\"\"\ncommons = \'' + str(commons) + '\''
+	else:
+		content += '\n\"\"\"Wikimedia Commons username (False if none)\"\"\"\ncommons = ' + str(commons)
+	
 	content += '\n\"\"\"Not necessary, but won\'t prompt you for password\"\"\"\n#password = \'\''
 	quitonmess = raw_input('Quit when finding new messages? [t]rue, [f]alse: ')
 	if quitonmess.lower() == ('t' or 'true'):
@@ -29,6 +33,13 @@ def main():
 	else:
 		content += '\nts = ' + str(ts)
 	content += '\n\"\"\" Wiki to query... in format of \'xx.project\' \"\"\"\nwiki = \'%s\'' %(wiki)
+	maxlag = raw_input('How much servers have to be lagged to wait and then retry (maxlag is recommended 5): ')
+	try:
+		int(maxlag)
+	except:
+		print 'Please enter a valid number.'
+		maxlag = raw_input('How much servers have to be lagged to wait and then retry (maxlag is recommended 5): ')
+	content += '\n\"\"\"How much servers have to be lagged to wait and then retry (maxlag is recommended 5)\"\"\"\nmaxlag = ' + str(maxlag)
 	content += '\n\"\"\"API path for the wiki, where %s is the wiki above\"\"\"\napipath = \'http://%s.org/w/api.php\''
 	file.write(content)
 	file.close()
