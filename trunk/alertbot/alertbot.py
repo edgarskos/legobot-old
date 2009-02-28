@@ -30,7 +30,7 @@ min = cur[4]
 sec = cur[5]
 stamp = month+' '+str(day)+ ', '+str(year)+' at '+str(hour)+':'+str(min)+':'+str(sec)
 #this is what actually runs it
-logtext = getoutput('./run org.toolserver.alertbot.AlertsBatch')
+logtext = getoutput('./alertbot/run org.toolserver.alertbot.AlertsBatch')
 rs = re.findall('(.*)-(.*)-(.*) (.*),(.*) \[main\] INFO - Batch job completed; exit code (0|1)', logtext)[0]
 runstamptext = months[str(int(rs[1]))]+' '+rs[2]+ ', '+rs[0]+' at '+rs[3]+':'+rs[4]
 
