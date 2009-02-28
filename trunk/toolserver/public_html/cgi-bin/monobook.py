@@ -100,14 +100,14 @@ def navbar(replagmessage = 'status', other = False):
 </div></div>
 
 """
-		if other:
-			url = other.split('|')[0]
-			text = other.split('|')[1]
-			a = a %('<li><a href="'+url+'">'+text+'</a></li>')
-		else:
+	if other:
+		url = other.split('|')[0]
+		text = other.split('|')[1]
+		a = a %('<li><a href="'+url+'">'+text+'</a></li>')
+	else:
 		a = a %('')
-		b= replagtable(replagmessage)
-		return a+b
+	b= replagtable(replagmessage)
+	return a+b
 def footer():
 	x= """<table id="footer" style="text-align: left; clear:both;" width="100%"><tr><td>
 <a href="http://tools.wikimedia.de/"><img src="http://tools.wikimedia.de/images/wikimedia-toolserver-button.png" alt="Toolserver project" /></a>

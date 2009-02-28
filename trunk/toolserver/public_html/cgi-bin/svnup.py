@@ -38,8 +38,8 @@ if value:
 		passcode = ''
 		run = True
 		execute = getoutput('cd /home/legoktm; svn up')
-		newcont = execute.replace('.py','.py<br />')
-		newcont = newcont.replace('\n','<br />')
+#		newcont = execute.replace('.py','.py<br />')
+		newcont = execute.replace('\n','<br />')
 		content = """\
 		<h2>Result</h2><br />
 		%s
