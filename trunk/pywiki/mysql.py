@@ -32,6 +32,7 @@ class MySQL:
 			host = 'sql-s' + str(host)	
 		self.conn = MySQLdb.connect(db=db, host=host, read_default_file="/home/%s/.my.cnf" %(self.user))
 		self.cur = self.conn.cursor()
+		self.cur.execute(q)
 		self.res = self.cur.fetchall()
 		self.cur.close()
 		return res
@@ -42,7 +43,7 @@ class MySQL:
 		except IndexError:
 			raise wiki.MySQLError('%s does not exist.' %db)
 
-SQL = MySQL()
+trySQL = MySQL()
 def editcount(user, db):
 	res = SQL.query("SELECT user_editcount FROM user WHERE user_name = '%s';" %(user), db)
 	try:

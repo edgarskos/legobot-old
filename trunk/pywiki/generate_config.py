@@ -41,6 +41,7 @@ def main():
 		maxlag = raw_input('How much servers have to be lagged to wait and then retry (maxlag is recommended 5): ')
 	content += '\n\"\"\"How much servers have to be lagged to wait and then retry (maxlag is recommended 5)\"\"\"\nmaxlag = ' + str(maxlag)
 	content += '\n\"\"\"API path for the wiki, where %s is the wiki above\"\"\"\napipath = \'http://%s.org/w/api.php\''
+	content += '\npath = \'' + os.environ['PWD'] + '\' #please do not manually modify'
 	file.write(content)
 	file.close()
 	print 'Your userconfig.py has been written.'

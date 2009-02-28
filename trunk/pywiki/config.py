@@ -11,3 +11,4 @@ apipath = userconfig.apipath
 commons = userconfig.commons
 ts = userconfig.ts
 maxlag = userconfig.maxlag
+path = userconfig.path
