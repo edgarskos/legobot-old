@@ -66,7 +66,7 @@ class API:
 	
 	def __init__(self, wiki = config.wiki, login=False, debug=False, qcontinue = True, maxlag = config.maxlag):
 		#set up the cookies
-		self.COOKIEFILE = os.environ['PWD'] + '/cookies/'+ config.username +'.data'
+		self.COOKIEFILE = config.path + '/cookies/'+ config.username +'.data'
 		self.COOKIEFILE = self.COOKIEFILE.replace(' ','_')
 		self.cj = cookielib.LWPCookieJar()
 		if os.path.isfile(self.COOKIEFILE):
@@ -81,18 +81,15 @@ class API:
 		self.debug = debug
 		self.qcontinue = qcontinue
 		self.maxlag = maxlag
-	def query(self, params, after = None, write = False, maxlagtries = 0):
+	def query(self, params, write = False, maxlagtries = 0):
 		self.maxlagtries = maxlagtries
 		self.write = write
-		self.after = after
 		if os.path.isfile(self.COOKIEFILE):
 			self.cj.load(self.COOKIEFILE)
 		self.params = params
 		self.params['format'] = 'json'
 		self.params['maxlag'] = self.maxlag
 		self.encodeparams = urllib.urlencode(self.params)
-		if after:
-			self.encodeparams += after
 		if self.debug:
 			print self.encodeparams
 		self.headers = {
@@ -109,7 +106,7 @@ class API:
 		try:
 			self.response = urllib2.urlopen(self.request)
 		except urllib2.URLError, e:
-			raise APIError('urllib2.URLError:' + e)
+			raise APIError('urllib2.URLError:' + str(e))
 		if self.login:
 			self.cj.save(self.COOKIEFILE)
 			self.cj.save(self.COOKIEFILE + 'old')
@@ -127,13 +124,13 @@ class API:
 		try:
 			if newtext.has_key('error') and not (self.login or self.write): #so that way write errors are handled seperatly
 				if newtext['error']['code'] == 'maxlag':
-					print 'Sleeping for 5 seconds due to database lag.'
+					print newtext ['error']['info']
 					self.maxlagtries += 1
 					if self.maxlagtries >= 10:
-						raise APIError('Maxlag is too high right now.  Please try later')
+						raise Maxlag('Maxlag is too high right now.  Please try later')
 					time.sleep(5)
-					newtext = self.query(self.params, self.after, self.write, self.maxlagtries)
-				raise Maxlag(newtext['error'])
+					newtext = self.query(self.params, self.write, self.maxlagtries)
+				raise APIError(newtext)
 		except AttributeError:
 			raise APIError(newtext)
 		#finish query-continues
@@ -186,7 +183,7 @@ class Page:
 	
 	def __init__(self, page, wiki = config.wiki):
 		self.API = API()
-		self.page = page
+		self.page = unicode(page)
 		self.wiki = wiki
 #		self._basicinfo = self._basicinfo()
 #		self.ns = self._basicinfo['ns']
@@ -225,7 +222,7 @@ class Page:
 		return content.encode('utf-8')
 	def __updatetime(self):
 		#check if we have waited 10 seconds since the last edit/move 
-		FILE = os.environ['PWD'] + '/cookies/lastedit.data'
+		FILE = config.path + '/cookies/lastedit.data'
 		try:
 			text = open(FILE, 'r').read()
 			split = text.split('|')
@@ -394,15 +391,13 @@ class Page:
 			'from':self.page,
 			'to':self.newtitle,
 			'reason':summary,
-			'token':token
+			'token':token,
+			'movetalk':'',
 		}
 		self.__updatetime()
-		if movetalk:
-			res = self.API.query(params,'&movetalk', write = True)
-		else:
-			res = self.API.query(params, write = True)
+		res = self.API.query(params, write = True)
 		if res.has_key('error'):
-				if (res['error']['info'] == 'articleexists') or (res['error']['code'] == 'articleexists'):
+				if res['error']['code'] == 'articleexists':
 					raise MoveFailed(res['error'])
 				else:
 					raise APIError(res['error'])	
