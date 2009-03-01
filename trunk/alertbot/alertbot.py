@@ -35,18 +35,16 @@ rs = re.findall('(.*)-(.*)-(.*) (.*),(.*) \[main\] INFO - Batch job completed; e
 runstamptext = months[str(int(rs[1]))]+' '+rs[2]+ ', '+rs[0]+' at '+rs[3]+':'+rs[4]
 
 def finderrors(logtext):
-	split = logtext.splitlines()
 	errorcontent = ''
-	for line in split:
-			errors = re.findall('ERROR(.*?)\n', line)
-			error2 = re.findall('at com(.*?)\n', line)
-			error3 = re.findall('at org(.*?)\n', line)
-			for error in errors:
-				errorcontent += '<li>ERROR%s...</li>\n' %error
-			for error in error2:
-				errorcontent += '<li>at com%s...</li>\n' %error
-			for error in error3:
-				errorcontent += '<li>at org%s...</li>\n' %error
+	errors = re.findall('ERROR(.*?)\n', logtext)
+	error2 = re.findall('at com(.*?)\n', logtext)
+	error3 = re.findall('at org(.*?)\n', logtext)
+	for error in errors:
+		errorcontent += '<li>ERROR%s...</li>\n' %error
+	for error in error2:
+		errorcontent += '<li>at com%s</li>\n' %error
+	for error in error3:
+		errorcontent += '<li>at org%s</li>\n' %error
 	if len(errorcontent) == 0:
 		return '<li>No error occurred.</li>'
 	else:
