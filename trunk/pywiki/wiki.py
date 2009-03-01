@@ -259,7 +259,7 @@ class Page:
 		}
 		res = self.API.query(tokenparams, write = True)['query']['pages']
 		edittoken = res[res.keys()[0]]['edittoken']
-		timestamp = res[res.keys()[0]]['revisions'][0]['timestamp']
+		timestamp = res[res.keys()[0]]['starttimestamp']
 		md5 = hashlib.md5(newtext).hexdigest()
 
 		#do the edit
