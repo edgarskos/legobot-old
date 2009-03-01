@@ -5,7 +5,7 @@
 # (C) Legoktm 2008-2009, MIT License
 # 
  
-import re
+import re, sys, os
 sys.path.append(os.environ['HOME'] + '/pywiki')
 import wiki
 page = wiki.Page('Wikipedia:Possibly unfree images')
