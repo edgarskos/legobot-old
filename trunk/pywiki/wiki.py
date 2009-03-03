@@ -122,16 +122,16 @@ class API:
 		newtext = simplejson.loads(data)
 		#errors should be handled now
 		try:
-			if newtext.has_key('error') and (not (self.login or self.write)): #so that way write errors are handled seperatly
-				print nextext
+			if newtext.has_key('error'): #so that way write errors are handled seperatly
+#				print nextext
 				if newtext['error']['code'] == 'maxlag':
 					print newtext ['error']['info']
 					self.maxlagtries += 1
-					if self.maxlagtries >= 10:
-						raise Maxlag('Maxlag is too high right now.  Please try later')
+#					if self.maxlagtries >= 100:
+#						raise Maxlag('Maxlag is too high right now.  Please try later')
 					time.sleep(5)
 					newtext = self.query(self.params, self.write, self.maxlagtries)
-				else:
+				elif not (self.login or self.write):
 					raise APIError(newtext)
 		except AttributeError:
 			raise APIError(newtext)
