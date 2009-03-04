@@ -9,7 +9,7 @@ import MySQLdb
 import monobook
 print "Content-Type: text/html\n"
 def count(username, wiki, database):
-	db = MySQLdb.connect(db=wiki+'_p', host="sql-%s" %(database), read_default_file="/home/legoktm/.my.cnf")
+	db = MySQLdb.connect(db=wiki, host="sql-%s" %(database), read_default_file="/home/legoktm/.my.cnf")
 	cur = db.cursor()
 	cur.execute("SELECT user_editcount FROM user WHERE user_name = '%s';" %(username))
 	query = cur.fetchall()[0][0]
