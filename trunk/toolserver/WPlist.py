@@ -36,14 +36,14 @@ def createlist(cat, wpproj, raw = False, cats = True):
 	
 	page = wikipedia.Page(site, wpproj + '/Articles')
 	if not cats:
-		page.put(wikitext, 'Updating watchlist (Trial BRFA)')
+		page.put(wikitext, 'Updating watchlist')
 	if cats:
-		page.put(wikitext3, 'Updating watchlist (Trial BRFA)')
+		page.put(wikitext3, 'Updating watchlist')
 	wikitext2 = '<pre>\n' + wikitext2 + '\n</pre>'
 	wikitext2 = unicodify(wikitext2)
 	if raw == True:
 		page = wikipedia.Page(site, wpproj + '/Articles/raw')
-		page.put(wikitext2, 'Updating raw watchlist (Trial BRFA)')
+		page.put(wikitext2, 'Updating raw watchlist')
 def retpages(cat):
 	cat = delink(str(cat))
 	wikitext = '==[[:%s]]==\n' %cat
