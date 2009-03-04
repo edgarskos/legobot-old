@@ -117,10 +117,7 @@ Just drag the following link to your toolbar: <a href="javascript:location.href=
 """
 
 def printcontent(content):
-	print monobook.header('Template filler')
-	print monobook.body(content)
-	print monobook.navbar(other = 'http://code.google.com/p/legobot/source/browse/trunk/toolserver/public_html/cgi-bin/reflinks.py|Source')
-	print monobook.footer()
+	return monobook.all('Template filler',content,other = 'http://code.google.com/p/legobot/source/browse/trunk/toolserver/public_html/cgi-bin/reflinks.py|Source')
 
 def main():
 	form = cgi.FieldStorage()

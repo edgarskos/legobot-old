@@ -84,7 +84,7 @@ def body(content):
 	New hardware has arrived and will be installed shortly.
 </div>\n
 """
-	b= content
+	b= content.replace('\n','<br />') #fix newlines
 	c= '\n</div></div>\n'
 	return a+b+c
 def navbar(replagmessage = 'status', other = False):
