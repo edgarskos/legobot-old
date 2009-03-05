@@ -78,12 +78,6 @@ def replagtable(repmess):
 	
 def body(content):
 	a= """\n<body class="mediawiki"><div id="globalWrapper"><div id="column-content"><div id="content">\n"""
-	a+= """<br /><div style='background-color:#FFFF88; border:2px solid #DDDD22; text-align:center; margin-left:auto; margin-right:auto; width:77%;'>
-	Replication of S3 is halted. This means that the data for most wikis is old, and growing older.<br/>
-	Only data for some of the larger wikis is still kept up to date.<br/>
-	New hardware has arrived and will be installed shortly.
-</div>\n
-"""
 	b= content #.replace('\n','<br />') #fix newlines
 	c= '\n</div></div>\n'
 	return a+b+c
