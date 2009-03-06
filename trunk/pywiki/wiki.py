@@ -66,7 +66,11 @@ class API:
 	
 	def __init__(self, wiki = config.wiki, login=False, debug=False, qcontinue = True, maxlag = config.maxlag):
 		#set up the cookies
-		self.COOKIEFILE = config.path + '/cookies/'+ config.username +'.data'
+		try:
+			self.username = UserName
+		except:
+			self.username = config.username
+		self.COOKIEFILE = config.path + '/cookies/'+ self.username +'.data'
 		self.COOKIEFILE = self.COOKIEFILE.replace(' ','_')
 		self.cj = cookielib.LWPCookieJar()
 		if os.path.isfile(self.COOKIEFILE):
@@ -88,7 +92,8 @@ class API:
 			self.cj.load(self.COOKIEFILE)
 		self.params = params
 		self.params['format'] = 'json'
-		self.params['maxlag'] = self.maxlag
+		if self.write:
+			self.params['maxlag'] = self.maxlag
 		self.encodeparams = urllib.urlencode(self.params)
 		if self.debug:
 			print self.encodeparams
@@ -109,7 +114,7 @@ class API:
 			raise APIError('urllib2.URLError:' + str(e))
 		if self.login:
 			self.cj.save(self.COOKIEFILE)
-			self.cj.save(self.COOKIEFILE + 'old')
+#			self.cj.save(self.COOKIEFILE + 'old')
 		text = self.response.read()
 		if gzip:
 			compressedstream = StringIO.StringIO(text)
@@ -153,6 +158,7 @@ class API:
 			else:
 				cont = res['query-continue'][key1][key2].encode('utf-8')
 			params[key2] = cont
+			print 'Continuing Query'
 			res = API(qcontinue=False).query(params)
 			for type in keylist:
 				total = self.__resultCombine(type, total, res)
@@ -187,41 +193,72 @@ class Page:
 		self.API = API()
 		self.page = unicode(page)
 		self.wiki = wiki
-#		self._basicinfo = self._basicinfo()
-#		self.ns = self._basicinfo['ns']
 		self.Site = Site(wiki=self.wiki)
+		self.content = False
+		self._basicinfo = False
+		self.langlinks = False
+		self.prot = False
+		self.edittoken = False
+		self.movetoken = False
+		self.starttimestamp = False
+		self.ns = False
+		self.revisions = False
 	def __str__(self):
 		return self.page
 	def __repr__(self):
-		return 'wiki.Page{\'%s\'}' %self.page
+		return 'Page{\'%s\'}' %self.page
 	def __basicinfo(self):
+		if self._basicinfo:
+			return
 		params = {
 			'action':'query',
-			'prop':'info',
+			'prop':'info|revisions|langlinks|categoryinfo',
 			'titles':self.page,
+			'inprop':'protection|talkid|subjectid',
+			'intoken':'edit|move',
+			'rvprop':'user|comment|content',
+			'lllimit':'500',
 		}
+		self.res = self.API.query(params)['query']
+		res2 = self.res['pages']
+		self.id = str(res2.keys()[0])
+		self._basicinfo = res2[self.id]
+		try:
+			self.revisions = self._basicinfo['revisions']
+			self.content = self._basicinfo['revisions'][0]['*']
+		except:
+			if self._basicinfo.has_key('missing'):
+				self.exist = False
+			else:
+				raise APIError(self._basicinfo)
 		
-		res = self.API.query(params)
-		id = res['query']['pages'].keys()[0]
-		dict = res['query']['pages'][id]
-		return dict
+		try:
+			self.langlinks = self._basicinfo['langlinks']
+		except:
+			self.langlinks = None
+		self.prot = self._basicinfo['protection']
+		self.edittoken = self._basicinfo['edittoken']
+		self.ns = self._basicinfo['ns']
+		try:
+			self.movetoken = self._basicinfo['movetoken']
+		except:
+			if self.res.has_key('warnings'):
+				if self.res['warnings']['info']['*'] == 'Action \'move\' is not allowed for the current user':
+					raise NotLoggedIn
+		self.starttimestamp = self._basicinfo['starttimestamp']
+		
+		return self._basicinfo
 	def title(self):
 		return self.page
 	def get(self, force = False):
 		if self.isRedirect() and (not force):
 			raise IsRedirectPage(self.API.query({'action':'query','titles':self.page,'redirects':''})['query']['redirects'][0]['to'])
-		params = {
-			'action':'query',
-			'prop':'revisions',
-			'titles':self.page,
-			'rvprop':'content',
-		}
-		res = self.API.query(params)['query']['pages']
-		if res.keys()[0] == '-1':
+		if int(self.id) == (-1 or -2):
 			raise NoPage(self.page)
-		content = res[res.keys()[0]]['revisions'][0]['*']
-		self.content = content.encode('utf-8')
-		return content.encode('utf-8')
+		if not self.content:
+			self.__basicinfo()
+		self.content = self.content.encode('utf-8')
+		return self.content
 	def __updatetime(self):
 		#check if we have waited 10 seconds since the last edit/move 
 		FILE = config.path + '/cookies/lastedit.data'
@@ -252,26 +289,14 @@ class Page:
 				summary = EditSummary
 			except NameError:
 				summary = '[[WP:BOT|Bot]]: Automated edit' 
-		#get the token
-		tokenparams = {
-			'action':'query',
-			'prop':'info',
-			'intoken':'edit',
-			'titles':self.page
-		}
-		res = self.API.query(tokenparams, write = True)['query']['pages']
-		edittoken = res[res.keys()[0]]['edittoken']
-		timestamp = res[res.keys()[0]]['starttimestamp']
 		md5 = hashlib.md5(newtext).hexdigest()
-
-		#do the edit
 		params = {
 			'action':'edit',
 			'title':self.page,
 			'text':newtext,
 			'summary':summary,
-			'token':edittoken,
-			'starttimestamp':timestamp,
+			'token':self.edittoken,
+			'starttimestamp':self.starttimestamp,
 			'md5':md5,
 		}
 		print 'Going to change [[%s]]' %(self.page)
@@ -292,35 +317,27 @@ class Page:
 			raise APIError(res)
 		
 	def titlewonamespace(self):
-		ns = self.namespace()
-		if ns == 0:
+		if not self.ns:
+			self.__basicinfo()
+		if self.ns == 0:
 			return self.page
 		else:
 			return self.page.split(':')[1]
 	def namespace(self):
-		try:
-			self._basicinfo
-		except AttributeError:
-			self._basicinfo = self.__basicinfo()
-		try:
-			return self.ns
-		except AttributeError:
-			self.ns = self._basicinfo['ns']
+		if not self.ns:
+			self.__basicinfo()
 		return self.ns
+
 	def lastedit(self, prnt = False):
-		params = {
-			'action':'query',
-			'prop':'revisions',
-			'titles':self.page,
-			'rvprop':'user|comment',
-		}
-		res = self.API.query(params)['query']['pages']
-		ret = res[res.keys()[0]]['revisions'][0]
+		if not self.revisions:
+			self.__basicinfo()
+		ret = self.revisions
 		if prnt:
 			print 'The last edit on %s was made by: %s with the comment of: %s.' %(page, ret['user'], ret['comment'])
 		return ret
 	def istalk(self):
-		self.namespace()
+		if not self.ns:
+			self.__basicinfo()
 		if self.ns != -1 or self.ns != -2:
 			if self.ns%2 == 0:
 				return False
@@ -353,10 +370,7 @@ class Page:
 	def isTemplate(self):
 		return self.namespace() == 10
 	def isRedirect(self):
-		try:
-			self._basicinfo
-		except AttributeError:
-			self._basicinfo = self.__basicinfo()
+		self.__basicinfo()
 		if self._basicinfo.has_key('redirect'):
 			self.redirect = True
 		else:
@@ -370,10 +384,7 @@ class Page:
 		}
 		self.API.query(params)
 	def exists(self):
-		try:
-			self._basicinfo
-		except AttributeError:
-			self._basicinfo = self.__basicinfo()
+		self.__basicinfo()
 		if self._basicinfo.has_key('missing'):
 			return False
 		else:
@@ -469,7 +480,11 @@ class Page:
 			raise APIError(res)
 		except IndexError:
 			raise APIError(res)
-		
+	def aslink(self, regex = False):
+		if not regex:
+			return '[[%s]]' %(self.page)
+		else:
+			return '\[\[%s\]\]' %(self.page)
 		
 
 """
@@ -543,6 +558,11 @@ def login(username = False):
 def setAction(summary):
 	global EditSummary
 	EditSummary = summary
+
+def setUser(name):
+	global UserName
+	UserName = name
+	print 'Switching username to %s on %s.' %(UserName, config.wiki)
 
 def showDiff(oldtext, newtext):
 	"""
