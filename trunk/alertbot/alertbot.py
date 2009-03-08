@@ -49,7 +49,17 @@ def finderrors(logtext):
 		return '<li>No error occurred.</li>'
 	else:
 		return errorcontent
+
 errors = finderrors(logtext)
+def probreport(logtext):
+	list = re.findall('WARN - problem report generated for (.*?)\n', logtext)
+	content =''
+	for i in list:
+		content += '<li><a href="http://en.wikipedia.org/wiki/Wikipedia:%s/Article alerts">Wikipedia:%s/Article alerts</a></li>' %(i, i)
+	if len(content) == 0:
+		return '<li>No problem reports generated</li>'
+	else:
+		return content
 numofsubscrip=re.findall(' \[main\] INFO - (.*) subscriptions read from Category:ArticleAlertbot subscriptions', logtext)
 subscript = numofsubscrip[0] + ' subscriptions were read from [[Category:ArticleAlertbot subscriptions]].'
 writenum = re.findall('\[main\] INFO - WRITE:', logtext)
@@ -64,6 +74,10 @@ content = """<h2>Last run</h2>
 <ul>
 %s
 </ul>
+<h3>Problem Report(s)</h3>
+<ul>
+%s
+</ul>
 <h2>Statistics</h2>
 <ul>
 <li>%s</li>
@@ -71,7 +85,7 @@ content = """<h2>Last run</h2>
 <li>%s</li>
 </ul>
 <small>Report generated at %s</small>
-""" %(runstamptext, errors, subscript, write, skip, stamp)
+""" %(runstamptext, errors, probrep, subscript, write, skip, stamp)
 
 #content to be put in the page
 title = monobook.header('Alertbot status')
