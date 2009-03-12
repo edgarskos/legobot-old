@@ -88,7 +88,7 @@ def navbar(replagmessage = 'status', other = False):
 <ul>
 <li><a href="http://tools.wikimedia.de/~legoktm/">Main Page</a></li>
 <li><a href="http://code.google.com/p/legobot/issues/list">Bug tracker</a></li>
-<li><a href="http://code.google.com/p/legobot/source/browse">Subversion</a></li>
+<li><a href="http://code.google.com/p/legobot/source/browse#svn/trunk/toolserver">Subversion</a></li>
 %s
 </ul>
 </div></div>
@@ -120,7 +120,7 @@ def all(title, content, replagmessage = None, other = None):
 			x+= navbar(replagmessage, other)
 		else:
 			x+= navbar(replagmessage)
-	if other:
+	if other and not replagmessage:
 		x+= navbar(other = other)
 	x+= footer()
 	return x
