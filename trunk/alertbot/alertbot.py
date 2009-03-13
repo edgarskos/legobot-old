@@ -60,6 +60,7 @@ def probreport(logtext):
 		return '<li>No problem reports generated</li>'
 	else:
 		return content
+probreb = probreport(logtext)
 numofsubscrip=re.findall(' \[main\] INFO - (.*) subscriptions read from Category:ArticleAlertbot subscriptions', logtext)
 subscript = numofsubscrip[0] + ' subscriptions were read from [[Category:ArticleAlertbot subscriptions]].'
 writenum = re.findall('\[main\] INFO - WRITE:', logtext)
