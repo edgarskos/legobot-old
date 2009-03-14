@@ -5,7 +5,7 @@
 
  Distributed under the terms of the MIT license.
 
-__version__ = '$Id: $'
+__version__ = '$Id$'
 
 Note: Still in development stage
 Status: Approved for a 5 day trial
@@ -17,13 +17,6 @@ sys.path.append(os.environ['HOME'] + '/stuffs/pywiki/pywikipedia')
 import wikipedia, pagegenerators, catlib
 from image import *
 from upload import UploadRobot
-def delink(name):
-	name = str(name)
-	return re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', name)
-
-def defilelink(name):
-	name = str(name)
-	return re.compile(r'\[\[File:(.*?)\]\]', re.IGNORECASE).sub(r'\1', name)
 
 #SITES
 wikien = wikipedia.getSite(code = 'en', fam = 'wikipedia')
@@ -52,7 +45,7 @@ def fixdescrip(des):
 def ch2(name):
 	params = {
 		'language'    : 'en',
-		'image'       : defilelink(name),
+		'image'       : name.titleWithoutNamespace(),
 		'project'     : 'wikipedia',
 		'username'    : 'Legoktm',
 		'doit'        : 'Get_text',
@@ -64,7 +57,7 @@ def ch2(name):
 	f.close()
 	tablock = ch2text.split('<textarea ')[1].split('>')[0]
 	descrip = ch2text.split('<textarea '+tablock+'>')[1].split('</textarea>')[0]
-	print 'Recieved info from CommonsHelper about %s:' %(delink(name))
+	print 'Recieved info from CommonsHelper about %s:' %(name.title())
 	descrip = fixdescrip(descrip)
 	if descrip == False:
 		return False
@@ -77,13 +70,13 @@ def upload(name):
 	descrip = ch2(name)
 	if descrip == False:
 		return False
-	print 'Uploading %s to commons:commons.' %(delink(name))
+	print 'Uploading %s to commons:commons.' %(name.title())
 	#wikipedia.showDiff('', descrip)
 	time.sleep(20)
 	bot = UploadRobot(name.fileUrl(), description=descrip, useFilename=name.fileUrl(), keepFilename=True, verifyDescription=False, targetSite = commons)
 
 	bot.run()
-	print '%s was uploaded to commons:commons.' %(delink(name))
+	print '%s was uploaded to commons:commons.' %(name.title())
 		
 #	except:
 #		log = open('ErrorLog.txt', 'r')
@@ -97,7 +90,7 @@ def upload(name):
 #Edit enwiki page to reflect movement
 
 def ncd(name):
-	name = delink(name)
+	name = name.title()
 	page = wikipedia.Page(wikien, name)
 	wikitext = page.get()
 	state0 = wikitext
@@ -116,10 +109,10 @@ def ncd(name):
 def moveimage(name):
 	#HACK
 	name = str(name)
-	name = re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', name)
+	name = name.title()
 	name = wikipedia.ImagePage(wikien, name)
-	if wikipedia.Page(commons, delink(name)).exists():
-		print '%s is already on the commons.' %(delink(name))
+	if wikipedia.Page(commons, name.title()).exists():
+		print '%s is already on the commons.' %(name.title())
 		ncd(name)
 		return
 	uploadres = upload(name)
