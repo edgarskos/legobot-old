@@ -10,7 +10,11 @@ sys.path.append(os.environ['HOME'] + '/pywiki')
 from pywikibot import wiki
 wiki.setUser('Legobot')
 page = wiki.Page('Wikipedia:Possibly unfree images')
-wikitext = state0 = page.get()
+try:
+	wikitext = state0 = page.get()
+except wiki.IsRedirectPage:
+	page = wiki.Page('Wikipedia:Possibly unfree files')
+	wikitext = state0 = page.get()	
 wikitext = re.compile(r'\n==New listings==', re.IGNORECASE).sub(r'\n*[[/{{subst:#time:Y F j|-14 days}}]]\n==New listings==', wikitext)
 EditMsg = 'Adding new day to holding cell'
 wiki.showDiff(state0, wikitext)
