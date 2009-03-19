@@ -52,7 +52,7 @@ def retpages(cat):
 		'action':'query',
 		'list':'categorymembers',
 		'cmtitle':cat,
-		'cmlimit':'500',
+		'cmlimit':'max',
 	}
 	res = API(params)
 	res = res['query']['categorymembers']
@@ -67,6 +67,7 @@ def retpages(cat):
 
 def main():
 	createlist('Canadian football', 'Wikipedia:WikiProject Canadian football', raw = True)
+	createlist('Ohio', 'Wikipedia:WikiProject Ohio', raw = True)
 	
 if __name__ == '__main__':
 	try:

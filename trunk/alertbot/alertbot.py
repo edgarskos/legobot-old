@@ -94,6 +94,7 @@ body = monobook.body(content)
 navbar = monobook.navbar('status at run')
 footer = monobook.footer()
 fullcontent = str(title)+str(body)+str(navbar)+str(footer)
+print 'Editing http://toolserver.org/~legoktm/alertbot.html'
 print fullcontent
 htmlpage = open('/home/legoktm/public_html/alertbot.html', 'w')
 htmlpage.write(fullcontent)
