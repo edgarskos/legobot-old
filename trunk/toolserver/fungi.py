@@ -1,4 +1,5 @@
 #!usr/bin/python
+__version__ = '$Id$'
 import re, time, sys, os
 sys.path.append(os.environ['HOME'] + '/pywiki')
 from pywikibot import wiki, pagegen, timedate
@@ -30,6 +31,10 @@ def do_page(page):
 	try:
 		tablerow = '|-\n|| %s || %s || %s || %s || %s\n' %(main_page.aslink(), str(len(main_page.get())), clas, lastedit, str(len(pagegen.whatlinkshere(main_page))))
 	except wiki.IsRedirectPage:
+		return ''
+	except UnicodeEncodeError:
+		return ''
+	except UnicodeDecodeError:
 		return ''
 	print tablerow,
 	return tablerow
