@@ -17,7 +17,10 @@ def do_page(page):
 	main_page = page.toggletalk()
 	print 'Doing ' + main_page.title()
 	lastedit = timedate.convertts(main_page.lastedit()['timestamp'])
-	clas = wiki.parseTemplate(talk_page.get())['class']
+	try:
+		clas = wiki.parseTemplate(talk_page.get())['class']
+	except KeyError:
+		clas = ''
 	if clas == 'GA':
 		clas = '{{GA-inline}}'
 	elif clas == 'FA':
