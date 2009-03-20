@@ -6,7 +6,9 @@ import cgitb; cgitb.enable()
 import cgi, sys, re
 from commands import getoutput
 sys.path.append('/home/legoktm')
+sys.path.append('/home/legoktm/pywiki/pywikibot')
 
+__version__ = '$Id$'
 import monobook
 
 input_content = """\
@@ -38,12 +40,14 @@ if value:
 		passcode = ''
 		run = True
 		execute = getoutput('cd /home/legoktm; svn up')
+		execute1 = getoutput('cd /home/legoktm/pywiki/pywikibot; python generate_docs.py')
 #		newcont = execute.replace('.py','.py<br />')
 		newcont = execute.replace('\n','<br />')
+		newcont1 = execute1.replace('\n','<br />')
 		content = """\
 		<h2>Result</h2><br />
 		%s
-		""" %(newcont)
+		""" %(newcont+'\n'+newcont1)
 		print fullcontent(content)
 	else:
 		content = """\
