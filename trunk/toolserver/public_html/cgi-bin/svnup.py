@@ -40,14 +40,16 @@ if value:
 		passcode = ''
 		run = True
 		execute = getoutput('cd /home/legoktm; svn up')
+		execute2 = getoutput('cd /home/legoktm/pywiki; svn up')
 		execute1 = getoutput('cd /home/legoktm/pywiki/pywikibot; python generate_docs.py')
 #		newcont = execute.replace('.py','.py<br />')
 		newcont = execute.replace('\n','<br />')
 		newcont1 = execute1.replace('\n','<br />')
+		newcont2 = execute2.replace('\n','<br />')
 		content = """\
 		<h2>Result</h2><br />
 		%s
-		""" %(newcont+'\n'+newcont1)
+		""" %(newcont+'\n'+newcont1+'\n'+newcont2)
 		print fullcontent(content)
 	else:
 		content = """\
