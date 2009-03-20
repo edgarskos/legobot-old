@@ -1,6 +1,6 @@
 #!usr/bin/python
 import re, time, sys, os
-sys.path.append(os.environ['HOME'] + '/pywiki'
+sys.path.append(os.environ['HOME'] + '/pywiki')
 from pywikibot import wiki, pagegen, timedate
 wiki.setUser('Legobot')
 
@@ -15,6 +15,7 @@ def main():
 def do_page(page):
 	talk_page = page
 	main_page = page.toggletalk()
+	print 'Doing ' + main_page.title()
 	lastedit = timedate.convertts(main_page.lastedit()['timestamp'])
 	clas = wiki.parseTemplate(talk_page.get())['class']
 	if clas == 'GA':

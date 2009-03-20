@@ -1,6 +1,7 @@
 #!usr/bin/python
 # -*- coding: utf-8  -*-
 import os, sys, re
+__version__ = '$Id$'
 sys.path.append(os.environ['HOME'] + '/pyenwiki')
 import wikipedia, catlib, pagegenerators, query
 def API(params):
