@@ -139,7 +139,7 @@ def main():
 		""" %(subpagelink, template)
 	else:
 		content = input_content
-	printcontent(content)
+	print printcontent(content)
 	
 	
 
