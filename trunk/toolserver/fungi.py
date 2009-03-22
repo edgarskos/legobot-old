@@ -7,7 +7,7 @@ from pywikibot import wiki, pagegen, timedate
 wiki.setUser('Legobot')
 
 def do_project(page, putpage):
-	gen = pagegen.transclude(wiki.Page('Template' + page))
+	gen = pagegen.transclude(wiki.Page('Template:' + page))
 	table = ''
 	for page in gen:
 		table += do_page(page)
