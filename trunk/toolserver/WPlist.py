@@ -61,7 +61,7 @@ def retpages(cat):
 		try:
 			if article['ns'] != (14 or '14'):
 				artname = unicode(article['title'])
-				wikitext += '*[[%s]]\n' %artname
+				wikitext += '*[[%s]]\n' %unicode(artname)
 		except KeyError:
 			return ''
 	return wikitext
