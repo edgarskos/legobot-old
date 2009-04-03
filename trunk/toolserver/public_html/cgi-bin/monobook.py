@@ -86,7 +86,7 @@ def navbar(replagmessage = 'status', other = False):
 <div class="portlet" id="p-logo"><a style="background-image: url(http://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Wikimedia_Community_Logo-Toolserver.svg/135px-Wikimedia_Community_Logo-Toolserver.svg.png);" href="http://toolserver.org/~legoktm/cgi-bin/index.py" title="Home"></a></div>
 <div class='portlet' id='p-navigation'><h5>navigation</h5><div class='pBody'>
 <ul>
-<li><a href="http://tools.wikimedia.de/~legoktm/">Main Page</a></li>
+<li><a href="http://toolserver.org/~legoktm/cgi-bin/index.py">Main Page</a></li>
 <li><a href="http://code.google.com/p/legobot/issues/list">Bug tracker</a></li>
 <li><a href="http://code.google.com/p/legobot/source/browse#svn/trunk/toolserver">Subversion</a></li>
 %s
