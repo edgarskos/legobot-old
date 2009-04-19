@@ -10,7 +10,10 @@ def do_project(page, putpage):
 	gen = pagegen.transclude(wiki.Page('Template:' + page))
 	table = ''
 	for page in gen:
-		table += do_page(page)
+		try:
+			table += do_page(page)
+		except:
+			table += ''
 	putpage1 = wiki.Page(putpage)
 	newcontent = '{| class="wikitable sortable" style="text-align: left;"\n|-\n! Article name\n! Size (bytes)\n! Rating\n! Last modified\n! # Incoming links\n' + table + '\n|}'
 	putpage1.put(newcontent, 'Bot: Updating article list')
