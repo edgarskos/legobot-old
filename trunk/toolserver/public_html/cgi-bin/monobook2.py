@@ -12,7 +12,7 @@ class Page:
         self.name = name
         self.location = location
         self.repmess = repmess
-    def top(self, title):
+    def top(self):
         """
         Returns the header with all JS and CSS.
         """
@@ -34,7 +34,7 @@ class Page:
 		<!--[if lt IE 7]><script type="text/javascript" src="http://en.wikipedia.org/skins-1.5/common/IEFixes.js?207xx"></script>
 		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
         </head>
-    """ %(title)
+    """ %(self.title)
         bodystart = """
     <body class="mediawiki ltr ns-0 ns-subject page-Main_Page skin-monobook">
 	<div id="globalWrapper">
@@ -45,7 +45,7 @@ class Page:
 		<div id="bodyContent">
 			<h3 id="siteSub">< <a href="/~legoktm/cgi-bin/index.py">Main Page</a></h3>
 			<div id="contentSub"></div>
-    """ %(title)
+    """ %(self.title)
 
         return start+bodystart
 
