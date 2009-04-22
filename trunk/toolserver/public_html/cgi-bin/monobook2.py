@@ -23,7 +23,7 @@ class Page:
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="Content-Style-Type" content="text/css" />
 		<link rel="search" type="application/opensearchdescription+xml" href="/w/opensearch_desc.php" title="Wikipedia (en)" />
-		<title>%s</title>
+		<title>""" +self.name+ """</title>
 		<link rel="stylesheet" href="http://en.wikipedia.org/skins-1.5/monobook/main.css?207xx" type="text/css" media="screen" />
 		<!--[if lt IE 5.5000]><link rel="stylesheet" href="http://en.wikipedia.org/skins-1.5/monobook/IE50Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
 		<!--[if IE 5.5000]><link rel="stylesheet" href="http://en.wikipedia.org/skins-1.5/monobook/IE55Fixes.css?207xx" type="text/css" media="screen" /><![endif]-->
@@ -34,18 +34,18 @@ class Page:
 		<!--[if lt IE 7]><script type="text/javascript" src="http://en.wikipedia.org/skins-1.5/common/IEFixes.js?207xx"></script>
 		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
         </head>
-    """ %(self.name)
+    """
         bodystart = """
     <body class="mediawiki ltr ns-0 ns-subject page-Main_Page skin-monobook">
 	<div id="globalWrapper">
 		<div id="column-content">
 	<div id="content">
 		<a name="top" id="top"></a>
-		<h1 id="firstHeading" class="firstHeading">%s</h1>
+		<h1 id="firstHeading" class="firstHeading">"""+self.name+"""</h1>
 		<div id="bodyContent">
 			<h3 id="siteSub">< <a href="/~legoktm/cgi-bin/index.py">Main Page</a></h3>
 			<div id="contentSub"></div>
-    """ %(self.name)
+    """
 
         return start+bodystart
 
