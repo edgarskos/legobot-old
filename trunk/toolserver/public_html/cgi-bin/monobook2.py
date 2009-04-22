@@ -10,11 +10,11 @@ import monobook
 class Page:
     def __init__(self, name, location, repmess = 'status'):
         self.name = name
-        self.location = abslocation
+        self.location = location
         self.repmess = repmess
     def top(self, title):
         """
-        Adds the header with all JS and CSS.
+        Returns the header with all JS and CSS.
         """
         head = """
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -51,7 +51,7 @@ class Page:
 
     def body(self, content):
         """
-        Adds the content surrounded by comments.
+        Returns the content surrounded by comments.
         """
         text = '<!-- Start Content -->'
         text += content
