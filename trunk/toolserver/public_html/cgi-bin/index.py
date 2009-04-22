@@ -3,7 +3,7 @@
 # (C) Legoktm 2008-2009, MIT License
 # 
 import cgitb; cgitb.enable()
-import monobook
+import monobook2
 content = """\
 <h1>Bots running here</h1>
 <ul>
@@ -20,8 +20,11 @@ content = """\
 <li><a href="http://toolserver.org/~legoktm/cgi-bin/reflinks.py">Template filler</a></li>
 </ul>
 """
-
-print monobook.header('~legoktm')
-print monobook.body(content)
-print monobook.navbar()
-print monobook.footer()
+page = monobook2.Page('~legoktm','/~legoktm/cgi-bin/index.py')
+print page.top()
+print page.body(content)
+print page.footer()
+#print monobook.header('~legoktm')
+#print monobook.body(content)
+#print monobook.navbar()
+#print monobook.footer()
