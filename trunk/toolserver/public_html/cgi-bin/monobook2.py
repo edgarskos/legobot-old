@@ -47,7 +47,7 @@ class Page:
 			<div id="contentSub"></div>
     """
 
-        return start+bodystart
+        return head+bodystart
 
     def body(self, content):
         """
