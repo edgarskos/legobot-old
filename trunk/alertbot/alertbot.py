@@ -91,7 +91,7 @@ content = """<h2>Last run</h2>
 #content to be put in the page
 title = monobook.header('Alertbot status')
 body = monobook.body(content)
-navbar = monobook.navbar('status at run')
+navbar = monobook.navbar()
 footer = monobook.footer()
 fullcontent = str(title)+str(body)+str(navbar)+str(footer)
 print 'Editing http://toolserver.org/~legoktm/alertbot.html'

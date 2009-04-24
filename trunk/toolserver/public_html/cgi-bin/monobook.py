@@ -1,7 +1,9 @@
-#!usr/bin/env python
+#!usr/bin/python
 #
 # (C) Legoktm 2008-2009, MIT License
-# 
+#
+import cgi
+
 def header(title):
 #       print "Content-Type: text/html\n"
 	x= """\
@@ -24,19 +26,19 @@ td { vertical-align: top; }
 """
 	return x+y
 
-def getans(res):
+def __getans(res):
 	for row in res:
 		for col in res:
 			ans = str(col[0])
 	return ans
 
-def getcolor(num):
+def __getcolor(num):
 	colors = {'red':'#FF0000', 'green':'#a5ffbb'}
 	if int(num) >= 86400:
 		return (colors['red'], str(num))
 	else:
 		return (colors['green'], str(num))
-def convert_timestamp(seconds):
+def __convert_timestamp(seconds):
 	seconds = int(seconds)
 	hours = seconds / 3600
 	seconds = seconds % 3600
@@ -44,9 +46,7 @@ def convert_timestamp(seconds):
 	seconds = seconds % 60
 	return '%sh %sm %ss' % (hours, minutes, seconds)
 
-def replagtable(repmess):
-	if repmess == 'status':
-		repmess = '<a href="http://lists.wikimedia.org/pipermail/wikitech-l/2007-February/029950.html">status</a>'
+def replagtable():
 	import MySQLdb
 	dbs1 = MySQLdb.connect(db='enwiki_p', host="sql-s1", read_default_file="/home/legoktm/.my.cnf")
 	dbs2 = MySQLdb.connect(db='dewiki_p', host="sql-s2", read_default_file="/home/legoktm/.my.cnf")
@@ -60,21 +60,19 @@ def replagtable(repmess):
 	res1 = cur1.fetchall()
 	res2 = cur2.fetchall()
 	res3 = cur3.fetchall()
-	ans1 = getans(res1)
-	ans2 = getans(res2)
-	ans3 = getans(res3)     
-	set1 = getcolor(ans1)
-	set2 = getcolor(ans2)
-	set3 = getcolor(ans3)
-	y= "\n<div class='portlet' id='p-status'><h5>%s</h5><div class='pBody'>" %(repmess)
+	ans1 = __getans(res1)
+	ans2 = __getans(res2)
+	ans3 = __getans(res3)
+	set1 = __getcolor(ans1)
+	set2 = __getcolor(ans2)
+	set3 = __getcolor(ans3)
 	z= '\n<table style="width: 100%; border-collapse: collapse;">\n'
-	a= "\n<tr style='background-color: "+set1[0]+"'><td style='width: 25%; padding-left: 1em;'>s1</td><td>"+convert_timestamp(set1[1])+"</td></tr>"
-	b= "\n<tr style='background-color: "+set2[0]+"'><td style='width: 25%; padding-left: 1em;'>s2</td><td>"+convert_timestamp(set2[1])+"</td></tr>"
-	c= "\n<tr style='background-color: "+set3[0]+"'><td style='width: 25%; padding-left: 1em;'>s3</td><td>"+convert_timestamp(set3[1])+"</td></tr>"
+	a= "\n<tr style='background-color: "+set1[0]+"'><td style='width: 25%; padding-left: 1em;'>s1</td><td>"+__convert_timestamp(set1[1])+"</td></tr>"
+	b= "\n<tr style='background-color: "+set2[0]+"'><td style='width: 25%; padding-left: 1em;'>s2</td><td>"+__convert_timestamp(set2[1])+"</td></tr>"
+	c= "\n<tr style='background-color: "+set3[0]+"'><td style='width: 25%; padding-left: 1em;'>s3</td><td>"+__convert_timestamp(set3[1])+"</td></tr>"
 	d= '\n</table>'
-	e= '\n</div></div>'
-	f= '\n</div></div>'
-	return y+z+a+b+c+d+e+f
+#	f= '\n</div></div>'
+	return z+a+b+c+d #+f
 	
 def body(content):
 	a= """\n<body class="mediawiki"><div id="globalWrapper"><div id="column-content"><div id="content">\n"""
@@ -100,7 +98,7 @@ def navbar(replagmessage = 'status', other = False):
 		a = a %('<li><a href="'+url+'">'+text+'</a></li>')
 	else:
 		a = a %('')
-	b= replagtable(replagmessage)
+	b= replagtable(replagmessage) + '\n</div></div>'
 	return a+b
 def footer():
 	x= """<table id="footer" style="text-align: left; clear:both;" width="100%"><tr><td>
@@ -124,4 +122,9 @@ def all(title, content, replagmessage = None, other = None):
 		x+= navbar(other = other)
 	x+= footer()
 	return x
+def top(title):
+    print header(title)
 
+def bottom(replagmessage = None, other = None):
+    print navbar(replagmessage = replagmessage, other = other)
+    print footer

@@ -4,7 +4,7 @@
 # 
 import cgitb; cgitb.enable()
 import cgi, sys, urllib2, re, time
-import monobook, BeautifulSoup
+import monobook2, BeautifulSoup
 print "Content-Type: text/html\n"
 
 months = {
@@ -33,8 +33,7 @@ def gettitle(url, errorrep = False):
 		title = title.replace('\n',' ') #remove extra line breaks
 		title = title.replace('\t',' ') #remove extra tabs
 		return title
-	except urllib2.HTTPError, e:
-		error = e
+	except urllib2.HTTPError, error:0
 		#print error
 		title = internetarch(url)
 		if title:
@@ -117,7 +116,11 @@ Just drag the following link to your toolbar: <a href="javascript:location.href=
 """
 
 def printcontent(content):
-	return monobook.all('Template filler',content,other = 'http://code.google.com/p/legobot/source/browse/trunk/toolserver/public_html/cgi-bin/reflinks.py|Source')
+	global page
+    ret = page.top('Template filler','/~legoktm/cgi-bin/reflinks.py')
+    ret += page.body(content)
+    ret += page.footer()
+    return ret
 
 def main():
 	form = cgi.FieldStorage()

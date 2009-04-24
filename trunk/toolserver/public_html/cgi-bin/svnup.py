@@ -9,7 +9,7 @@ sys.path.append('/home/legoktm')
 sys.path.append('/home/legoktm/pywiki/pywikibot')
 
 __version__ = '$Id$'
-import monobook
+import monobook2
 
 input_content = """\
 	<h2>Run subversion update</h2>
@@ -23,21 +23,22 @@ Passcode: <input type="password" name="code"> <i>(Ask Legoktm)</i>
 <input type="submit" value="Run">
 </form>
 """
+page = monobook2.Page('SVN Updater', '/~legoktm/cgi-bin/svnup.py')
 
 def fullcontent(content):
-	return monobook.header('SVN Updater') + monobook.body(content) + monobook.navbar(other = 'http://code.google.com/p/legobot/source/browse/trunk/toolserver/public_html/cgi-bin/svnup.py|Source') + monobook.footer()
-form = cgi.FieldStorage()
-try:
-	username = form["username"].value
-	value = True
-except:
-	value = False
-if value:
-	code = form["code"].value
+	global page
+    print page.top()
+    print page.content(content)
+    print page.footer()
+
+username = page.getValue('username')
+if username:
+	code = page.getValue('code')
 	import passcode
 	if code == passcode.code:
 		#remove the pass code
 		passcode = ''
+        del passcode
 		run = True
 		execute = getoutput('cd /home/legoktm; svn up')
 		execute2 = getoutput('cd /home/legoktm/pywiki; svn up')
@@ -50,13 +51,13 @@ if value:
 		<h2>Result</h2><br />
 		%s
 		""" %(newcont+'\n'+newcont1+'\n'+newcont2)
-		print fullcontent(content)
+		fullcontent(content)
 	else:
 		content = """\
 		<h2>Error</h2>
 		Incorrect Password.
 		"""
-		print fullcontent(content)
+		fullcontent(content)
 		sys.exit()
 else:
-	print fullcontent(input_content)
+	fullcontent(input_content)
