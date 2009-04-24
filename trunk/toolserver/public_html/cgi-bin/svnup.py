@@ -12,7 +12,7 @@ __version__ = '$Id$'
 import monobook2
 
 input_content = """\
-	<h2>Run subversion update</h2>
+    <h2>Run subversion update</h2>
 <form name="input" action="/~legoktm/cgi-bin/svnup.py" method="get">
 
 Username: <input type="text" name="username">
@@ -26,38 +26,38 @@ Passcode: <input type="password" name="code"> <i>(Ask Legoktm)</i>
 page = monobook2.Page('SVN Updater', '/~legoktm/cgi-bin/svnup.py')
 
 def fullcontent(content):
-	global page
+    global page
     print page.top()
     print page.content(content)
     print page.footer()
 
 username = page.getValue('username')
 if username:
-	code = page.getValue('code')
-	import passcode
-	if code == passcode.code:
-		#remove the pass code
-		passcode = ''
+    code = page.getValue('code')
+    import passcode
+    if code == passcode.code:
+        #remove the pass code
+        passcode = ''
         del passcode
-		run = True
-		execute = getoutput('cd /home/legoktm; svn up')
-		execute2 = getoutput('cd /home/legoktm/pywiki; svn up')
-		execute1 = getoutput('cd /home/legoktm/pywiki/pywikibot; python generate_docs.py')
-#		newcont = execute.replace('.py','.py<br />')
-		newcont = execute.replace('\n','<br />')
-		newcont1 = execute1.replace('\n','<br />')
-		newcont2 = execute2.replace('\n','<br />')
-		content = """\
-		<h2>Result</h2><br />
-		%s
-		""" %(newcont+'\n'+newcont1+'\n'+newcont2)
-		fullcontent(content)
-	else:
-		content = """\
-		<h2>Error</h2>
-		Incorrect Password.
-		"""
-		fullcontent(content)
-		sys.exit()
+        run = True
+        execute = getoutput('cd /home/legoktm; svn up')
+        execute2 = getoutput('cd /home/legoktm/pywiki; svn up')
+        execute1 = getoutput('cd /home/legoktm/pywiki/pywikibot; python generate_docs.py')
+#        newcont = execute.replace('.py','.py<br />')
+        newcont = execute.replace('\n','<br />')
+        newcont1 = execute1.replace('\n','<br />')
+        newcont2 = execute2.replace('\n','<br />')
+        content = """\
+        <h2>Result</h2><br />
+        %s
+        """ %(newcont+'\n'+newcont1+'\n'+newcont2)
+        fullcontent(content)
+    else:
+        content = """\
+        <h2>Error</h2>
+        Incorrect Password.
+        """
+        fullcontent(content)
+        sys.exit()
 else:
-	fullcontent(input_content)
+    fullcontent(input_content)
