@@ -1,8 +1,9 @@
 #!usr/bin/python
 import cgitb; cgitb.enable()
-import cgi, sys, urllib2, re, time, json
-import monobook, reflinks
+import urllib2, simplejson
+import monobook2
 
+page = monobook2.Page('Google Searcher','/~legoktm/cgi-bin/googlesearch.py')
 input_content = """\
 <h2>Wiki Reference Finder</h2>
 <br />
@@ -14,21 +15,20 @@ Search: <input type="text" name="search">
 </form>
 """
 def printcontent(content):
-    return monobook.all('Google Searcher', content, other = 'http://code.google.com/p/legobot/source/browse/trunk/toolserver/public_html/cgi-bin/googlesearch.py|Source')
+    global page
+    ret = page.top()
+    ret += page.body(content)
+    ret += page.footer()
+    print ret
 
 def main():
-    form = cgi.FieldStorage()
-    try:
-        url = form["search"].value
-        value = True
-    except KeyError:
-        value = False
-    if value:
-        template = reflinks.createtemp(url)
+    global page
+    url = page.getValue('search')
+    if url:
         content = """\
         <h2>Search Results</h2>
         %s
-        """ %(getresults(search))
+        """ %(getresults(url))
     else:
         content = input_content
     printcontent(content)
@@ -39,7 +39,8 @@ def getresults(search):
     url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s' % (query)
     req=urllib2.Request(url,headers=headers)
     f=urllib2.urlopen(req)
-    text = json.loads(f.read())
+    text = simplejson.loads(f.read())
+    f.close()
     results = text['responseData']['results']
     retlist = []
     for i in results: #get only the data we need
@@ -55,3 +56,6 @@ def printres(list):
         temp += '\n<a href="http://www.toolserver.org/~legoktm/cgi-bin/reflinks/py?url=%s" target="_blank"><b>Cite this!</b></a>' %(list['url'])
         content += temp
     return content
+
+main()
+print 'Done...'

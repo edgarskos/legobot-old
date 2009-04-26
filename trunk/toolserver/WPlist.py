@@ -4,21 +4,18 @@ import os, sys, re
 __version__ = '$Id$'
 reload(sys)
 sys.setdefaultencoding('utf-8')
-sys.path.append(os.environ['HOME'] + '/pyenwiki')
-import wikipedia, catlib, pagegenerators, query
+sys.path.append(os.environ['HOME'] + '/projects/pywikibot')
+from pywikibot import wiki, catlib, pagegen
 def API(params):
-	return query.GetData(params, useAPI = True, encodeTitle = False)
+	return wiki.API.query(params)
 def unicodify(text):
     if not isinstance(text, unicode):
         return text.decode('utf-8')
     return text
-def delink(link):
-	link = re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', str(link))
-	return link
-site = wikipedia.getSite()
 def createlist(cat, wpproj, raw = False, cats = True):
-	category = catlib.Category(site, cat)
-	gen = pagegenerators.CategorizedPageGenerator(category, recurse=True)
+	category1 = wiki.Page('Category:'+cat)
+	category = catlib.Category(category1)
+	gen = pagegen.category(category1, recurse=True)
 	wikitext = ''
 	wikitext2 = ''
 	wikitext3 = ''
@@ -26,12 +23,12 @@ def createlist(cat, wpproj, raw = False, cats = True):
 	if not cats:
 		for page in gen:
 			wikitext = wikitext+'\n*'+str(page)
-			link = delink(str(page))
+			link = page.title()
 			print link
 			wikitext2 = wikitext2+'\n'+link
 		wikitext = unicodify(wikitext)
 	if cats:
-		subcats = category.subcategories(recurse = True)
+		subcats = category.subcats(recurse = True)
 		for subcat in subcats:
 			newtext = retpages(subcat)
 			wikitext3 += newtext
@@ -45,10 +42,10 @@ def createlist(cat, wpproj, raw = False, cats = True):
 	wikitext2 = '<pre>\n' + wikitext2 + '\n</pre>'
 	wikitext2 = unicodify(wikitext2)
 	if raw == True:
-		page = wikipedia.Page(site, wpproj + '/Articles/raw')
+		page = wiki.Page(wpproj + '/Articles/raw')
 		page.put(wikitext2, 'Updating raw watchlist')
 def retpages(cat):
-	cat = delink(str(cat))
+	cat = str(cat.title())
 	wikitext = '==[[:%s]]==\n' %cat
 	print 'Getting pages in [[%s]] using API...' %cat
 	params = {
@@ -73,7 +70,4 @@ def main():
 	createlist('Ohio', 'Wikipedia:WikiProject Ohio', raw = True)
 	
 if __name__ == '__main__':
-	try:
-		main()
-	finally:
-		wikipedia.stopme()
+	main()

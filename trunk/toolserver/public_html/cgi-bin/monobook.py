@@ -98,7 +98,7 @@ def navbar(replagmessage = 'status', other = False):
         a = a %('<li><a href="'+url+'">'+text+'</a></li>')
     else:
         a = a %('')
-    b= replagtable(replagmessage) + '\n</div></div>'
+    b= replagtable() + '\n</div></div>'
     return a+b
 def footer():
     x= """<table id="footer" style="text-align: left; clear:both;" width="100%"><tr><td>

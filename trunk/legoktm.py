@@ -35,10 +35,12 @@ def upload(wikipage, code):
 	if prompt == "y":
 		summary = 'Updating source'
 		scriptpage = wikipedia.Page(site, wikipage)
-		text = file(code).read()
-		text = '<source lang="python">\n' + text + '</sou' + 'rce>' # Split to confuse MW parser
-		if scriptpage.get() != text:
-    			scriptpage.put(text, summary)
+        file = open(code, 'r')
+        text = file.read()
+        file.close()
+        text = '<source lang="python">\n' + text + '</sou' + 'rce>' # Split to confuse MW parser
+        if scriptpage.get() != text:
+            scriptpage.put(text, summary)
 	else:
 		print "Source not updated"
 #checks talkpage for new messages

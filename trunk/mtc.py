@@ -9,6 +9,7 @@ __version__ = '$Id$'
 
 Note: Still in development stage
 Status: Approved for a 5 day trial
+TODO: Convert to PythonWikiBot
 """
 import urllib, re, time
 import os, sys

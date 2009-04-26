@@ -14,9 +14,18 @@ class Page:
             self.qstring = dict(cgi.parse_qsl(os.environ['REQUEST_URI'].split('?')[1]))
         except IndexError:
             self.qstring = {}
+        except KeyError:
+            self.qstring = {}
+
         self.name = name
-        self.location = os.environ['SCRIPT_FILENAME']
-        self.urllocation = 'http://toolserver.org' + os.environ['SCRIPT_NAME']
+        try:
+            self.location = os.environ['SCRIPT_FILENAME']
+        except KeyError:
+            self.location = ''
+        try:
+            self.urllocation = 'http://toolserver.org' + os.environ['SCRIPT_NAME']
+        except KeyError:
+            self.urllocation = ''
         self.repmess = repmess
     def getValue(self, name):
         try:
