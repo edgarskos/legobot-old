@@ -2,7 +2,8 @@
 # -*- coding: utf-8  -*-
 
 __version__ = '$Id$'
-import os, cgi
+import cgitb; cgitb.enable()
+import os, cgi, urllib
 #
 #(C) 2009 Legoktm, MIT License
 #
@@ -90,14 +91,15 @@ class Page:
     <ul>
     """
         if self.qstring['action'] == 'view':
+            del self.qstring['action']
             text += """
 <li class="selected"><a href=\""""+self.urllocation+"""\">Page</a></li>
-<li><a href=\""""+self.urllocation+"""?action=source\">View source</a></li>
+<li><a href=\""""+self.urllocation+"""?action=source&"""+urllib.urlencode(self.qstring)+"""\">View source</a></li>
 """
         elif self.qstring['action'] == 'source':
             text += """
 <li><a href=\""""+self.urllocation+"""\">Page</a></li>
-<li class="selected"><a href=\""""+self.urllocation+"""?action=source\">View source</a></li>
+<li class="selected"><a href=\""""+self.urllocation+"""?action=source&"""+urllib.urlencode(self.qstring)+"""\">View source</a></li>
 """
         text += """
       </ul>

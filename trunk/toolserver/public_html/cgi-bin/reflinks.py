@@ -6,7 +6,7 @@ import cgitb; cgitb.enable()
 import cgi, sys, urllib2, re, time
 import monobook2, BeautifulSoup
 print "Content-Type: text/html\n"
-
+page = monobook2.Page('Template filler','/~legoktm/cgi-bin/reflinks.py')
 months = {
     '1':'01',
     '2':'02',
@@ -33,7 +33,7 @@ def gettitle(url, errorrep = False):
         title = title.replace('\n',' ') #remove extra line breaks
         title = title.replace('\t',' ') #remove extra tabs
         return title
-    except urllib2.HTTPError, error:0
+    except urllib2.HTTPError, error:
         #print error
         title = internetarch(url)
         if title:
@@ -117,7 +117,7 @@ Just drag the following link to your toolbar: <a href="javascript:location.href=
 
 def printcontent(content):
     global page
-    ret = page.top('Template filler','/~legoktm/cgi-bin/reflinks.py')
+    ret = page.top()
     ret += page.body(content)
     ret += page.footer()
     return ret
@@ -136,9 +136,8 @@ def main():
             temp = False
         template = createtemp(url, notemp = temp)
         content = """\
-        <h2>Template filler result</h2>
-        %s
-        <textarea>%s</textarea>
+%s
+<textarea>%s</textarea>
         """ %(subpagelink, template)
     else:
         content = input_content

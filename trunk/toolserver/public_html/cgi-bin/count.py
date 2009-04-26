@@ -27,7 +27,7 @@ def getdb(wiki):
 
 page = monobook2.Page('Raw edit counter','/~legoktm/cgi-bin/count.py')
 
-page.getValue('username')
+username = page.getValue('username')
 
 if username:
     wiki = page.getValue('wiki')
@@ -36,7 +36,7 @@ if username:
     print editcount
 else:
     content = """\
-    <h2>Raw Edit counter</h2>
+<h2>Raw Edit counter</h2>
 <form name="input" action="/~legoktm/cgi-bin/count.py" method="get">
 
 Username: <input type="text" name="username">
