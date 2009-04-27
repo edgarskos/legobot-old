@@ -6,8 +6,8 @@
 # 
  
 import re, sys, os
-#sys.path.append(os.environ['HOME'] + '/pywiki')
-sys.path.append('/Users/kman/projects/pywikibot')
+sys.path.append(os.environ['HOME'] + '/pywiki')
+#sys.path.append('/Users/kman/projects/pywikibot')
 from pywikibot import wiki
 wiki.setUser('Legobot')
 page = wiki.Page('Wikipedia:Possibly unfree images')
