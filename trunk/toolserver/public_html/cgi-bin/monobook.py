@@ -1,8 +1,8 @@
-#!usr/bin/python
+ #!usr/bin/python
 #
 # (C) Legoktm 2008-2009, MIT License
 #
-import cgi
+import cgitb; cgitb.enable()
 
 def header(title):
 #       print "Content-Type: text/html\n"
@@ -98,7 +98,7 @@ def navbar(replagmessage = 'status', other = False):
         a = a %('<li><a href="'+url+'">'+text+'</a></li>')
     else:
         a = a %('')
-    b= replagtable() + '\n</div></div>'
+    b= replagtable() + '\n</div></div>\n</div></div>'
     return a+b
 def footer():
     x= """<table id="footer" style="text-align: left; clear:both;" width="100%"><tr><td>
