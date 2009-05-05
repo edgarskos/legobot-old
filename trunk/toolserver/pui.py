@@ -6,7 +6,7 @@
 # 
  
 import re, sys, os
-sys.path.append(os.environ['HOME'] + '/pywiki')
+sys.path.append(os.environ['HOME'] + '/pythonwikibot')
 #sys.path.append('/Users/kman/projects/pywikibot')
 import wiki
 wiki.setUser('Legobot')

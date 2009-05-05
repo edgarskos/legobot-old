@@ -2,7 +2,7 @@
 #-*- coding:utf-8 -*-
 __version__ = '$Id$'
 import re, time, sys, os
-sys.path.append(os.environ['HOME'] + '/pywiki')
+sys.path.append(os.environ['HOME'] + '/pythonwikibot')
 from pywikibot import wiki, pagegen, timedate
 wiki.setUser('Legobot')
 
