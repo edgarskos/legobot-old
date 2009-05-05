@@ -66,7 +66,7 @@ def retpages(cat):
 	return wikitext
 
 def main():
-	createlist('Canadian football', 'Wikipedia:WikiProject Canadian football', raw = True)
+	createlist('Canadian football', 'Wikipedia:WikiProject Canadian football', raw = False, cats = True)
 	createlist('Ohio', 'Wikipedia:WikiProject Ohio', raw = True)
 	
 if __name__ == '__main__':

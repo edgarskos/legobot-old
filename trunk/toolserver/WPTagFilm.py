@@ -26,7 +26,7 @@ def checkcat(page):
 	res = query.GetData(params, useAPI = True, encodeTitle = False)
 	if res.has_key('error'):
 		print 'ERROR: %s' %(res['error'])
-		return
+		sys.exit
 	res = res['query']['pages']
 	key = res.keys()
 	try:
@@ -53,7 +53,7 @@ def checktemp(page):
 	res = query.GetData(params, useAPI = True, encodeTitle = False)
 	if res.has_key('error'):
 		print 'ERROR: %s' %(res['error'])
-		return
+		sys.exit()
 	res = res['query']['pages']
 	key = res.keys()
 	list = res[key[0]]['categories']

@@ -1,9 +1,9 @@
 #!usr/bin/python
+print "Content-Type: text/html\n"
 import cgitb; cgitb.enable()
 import BeautifulSoup as BS, monobook
 import urllib, cgi, re, sys
 sys.path.append('/home/legoktm')
-print "Content-Type: text/html\n"
 
 
 input_content = """\
