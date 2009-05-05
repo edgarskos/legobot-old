@@ -334,6 +334,8 @@ def fix(text):
 
 # r"(publisher|work)\s*=\s*(?P<sq>'{2,5})([^{|}']+)(?P=sq)", r'\1=\2', text)
 
+	# Unlink well known publisher parameters (add work=?)
+	text = re.sub(r'(?i)(\|\s*(?:publisher|newpaper)\s*=\s*)\[\[(?:[Tt]he )?('+('|'.join(commonPublishers))+')\]\]', r'\1\2', text)
 
 	# Unlink PDF in format parameters
 	text = re.sub(r'(?i)(\|\s*format\s*=\s*)\[\[(adobe|portable|document|file|format|pdf|\.|\s|\(|\)|\|)+\]\]', r'\1PDF', text)
@@ -352,13 +354,25 @@ def fix(text):
 	text = re.sub(r'(\{\{\s*(?:[Cc]ite |[Cc]itation)[^{}]*\| *)page( *=\s*[A-Z]?\d+\s*[{|}])', r'\1pages\2', text)
 	text = re.sub(r'(\{\{\s*(?:[Cc]ite (?:journal|news|book)|[Cc]itation)[^{}]*\| *)pages( *=\s*[A-Z]?\d+\s*[{|}])', r'\1page\2', text)
 
+	# \n in title causes links to break
+	#Something wrong?: | title = \n| image = [[Image:Virtuatennis3front-1-.jpg|252px]] Fixed + -> *
+	for m in re.finditer(r'\|\s*title\s*=\s*([^{|}]*?)\s*\|',text):
+		text = text.replace(m.group(), m.group().replace(m.group(1), m.group(1).replace('\n', ' ').replace('\r', ' ')))
 
 	# Change infoboxes from trailing pipes (likely stems from  {{qif}} )
 	p = re.compile(r'(\{\{[\w\s_]*[Ii]nfobox([^{}]*?\{\{[^{}]+\}\})*[^{}]*?[^{|}](= )?) *\| *\n ?(?=[\s\w]+=)', re.U)
 	while p.search(text):
 		text = p.sub(r'\1\n| ', text)
 
+	# Fix web.archive.org links
+	# TODO |url= web.archive -> url+archiveurl
+	# Note: correct web.archive.org/2008/en.wikipedia.org/page format
+	text = re.sub(ur'(\{\{(?:[Cc]ite web|[Cc]ite news)[^{}]*?)(\|\s*)url(\s*=\s*)(?P<archiveurl>http://web.archive.org/web/(?P<y>\d{4})(?P<m>\d{2})(?P<d>\d{2})\d{6}/(?P<url>http://[^][{}|<>"\s]+))(\s*)(?=[{|}])', ur'\1\2url\3\g<url>\9\2archiveurl\3\g<archiveurl>\9\2archivedate\3\g<y>-\g<m>-\g<d>\9', text)
 
+	for m in re.finditer(r'(\|\s*(?:title|last|first|author)\s*=\s)([A-Z"\'\s.:;\-+0-9]{12,})(?=[{|}])', text):
+		s = m.group(2)
+		s = s.capitalize()
+		text=text.replace(m.group(), m.group(1)+s)
 
 	#
 	## HTML ## 
@@ -548,6 +562,8 @@ def fix(text):
 	# | url= http://www.statcan.ca/english/sdds/instrument/3901_Q2_V2_E.pdf]  (fx by removing the invalid [])
 	text = re.sub(r'(http:/* *){2,}(?=[a-z0-9:.\-]+/)', 'http://', text)  # Silently correct http://http:/
 	text = re.sub(r"(\[\w+://[^][<>\"\s]+?)''", r"\1 ''", text) # corrects [http://''title''] (nospaces) -> [http:// ''title'']
+	text = re.sub(ur'(?u)\[\n*(\w+://[^][<>"\s]+ *)[\n ]([\w ()\'":;.,]*?)\n*\]', ur'[\1 \2]', text)	# Fix some links which were broken with a line break
+	text = re.sub(ur'(?u)\[(\w+://[^][<>"\s]+) +(link|[Hh]ere|\W|→|[ -/;-@]) *\]', ur'\2 [\1]', text)	# remove unhelpful titles for screen readers
 
 	# External to Interwiki
 	# FIXME: http://sources.wikipedia.org/wiki/Bible%2C_English%2C_King_James%2C_Psalms#Chapter_72 
@@ -696,8 +712,7 @@ def fix(text):
 		norefbot = noreferences.NoReferencesBot(None)
 		if norefbot.lacksReferences(text, verbose=False):
 			text = norefbot.addReferences(text)
-	# change image: to file:
-	text = re.sub(r'\[\[Image:)', r'[[File:', text)
+
 	return text
 def test():
 	tests = (

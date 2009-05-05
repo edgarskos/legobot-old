@@ -31,6 +31,7 @@ sec = cur[5]
 stamp = month+' '+str(day)+ ', '+str(year)+' at '+str(hour)+':'+str(min)+':'+str(sec)
 #this is what actually runs it
 logtext = getoutput('./alertbot/run org.toolserver.alertbot.AlertsBatch')
+print logtext
 rs = re.findall('(.*)-(.*)-(.*) (.*),(.*) \[main\] INFO - Batch job completed; exit code (0|1)', logtext)[0]
 runstamptext = months[str(int(rs[1]))]+' '+rs[2]+ ', '+rs[0]+' at '+rs[3]+':'+rs[4]
 
@@ -60,20 +61,20 @@ def probreport(logtext):
 		return '<li>No problem reports generated</li>'
 	else:
 		return content
-probreb = probreport(logtext)
 numofsubscrip=re.findall(' \[main\] INFO - (.*) subscriptions read from Category:ArticleAlertbot subscriptions', logtext)
 subscript = numofsubscrip[0] + ' subscriptions were read from [[Category:ArticleAlertbot subscriptions]].'
 writenum = re.findall('\[main\] INFO - WRITE:', logtext)
 write = str(len(writenum)) + ' edits were made during the last run.'
 skipnum = re.findall('\[main\] INFO - Job is cached, skipping: REPLACE:', logtext)
 skip = str(len(skipnum)) + ' reports were cached and not updated.'
+probreb = probreport(logtext)
 content = """<h2>Last run</h2>
 <ul>
 <li>Alertbot last ran at %s</li>
 </ul>
 <h3>Error(s)</h3>
 <ul>
-%s
+<li>%s</li>
 </ul>
 <h3>Problem Report(s)</h3>
 <ul>
@@ -86,7 +87,7 @@ content = """<h2>Last run</h2>
 <li>%s</li>
 </ul>
 <small>Report generated at %s</small>
-""" %(runstamptext, errors, probrep, subscript, write, skip, stamp)
+""" %(runstamptext, errors, probreb, subscript, write, skip, stamp)
 
 #content to be put in the page
 title = monobook.header('Alertbot status')
