@@ -3,7 +3,7 @@
 # (C) Legoktm 2008-2009, MIT License
 #
 import wikipedia, pagegenerators, catlib
-import re
+import re, sys
 from wikipedia import *
 #status updater
 #syntax: legoktm.newstatus("Status", "User:Username/Status", "[y]es/[n]o prompt)
@@ -13,20 +13,20 @@ def newstatus(status, page, prompt):
 	statuspage = wikipedia.Page(site, page)
 	print "Current status is " + statuspage.get()
 	if statuspage.get() != status:
-			if prompt == "y":
-				ask = raw_input("Should we update your status to " + status + "? [y]es, [n]o ")
-    				if ask == "y":
-    						summary = 'Updating my status'
-    						statuspage.put(status, summary)
-    			else:
-    				summary = 'Updating my status'
+		if prompt == "y":
+			ask = raw_input("Should we update your status to " + status + "? [y]es, [n]o ")
+    			if ask == "y":
+					summary = 'Updating my status'
     				statuspage.put(status, summary)
     	else:
+    		summary = 'Updating my status'
+    		statuspage.put(status, summary)
+    else:
     		print "Don't have to update status,\nas it already is " + status
 #shortcut for raw_input()
 #syntax: legoktm.ri(text)
 def ri(text):
-	raw_input(text)
+	return raw_input(text)
 #uploads source code to wiki
 #variables: wikipage=page to upload code to and code=file code is in
 #syntax: legoktm.upload(wikipage, code)
@@ -42,20 +42,7 @@ def upload(wikipage, code):
         if scriptpage.get() != text:
             scriptpage.put(text, summary)
 	else:
-		print "Source not updated"
-#checks talkpage for new messages
-#syntax: legoktm.talk(username, localfile, check to break [y]es, [n]o)
-"""
-def talk(username, localpage, check):
-	ltp = open("talkpage.txt","w")
-	wtp = wikipedia.Page(site, wikipage)
-	talkpage = wtp.get()
-	ltp.writelines(talkpage)
-	
-	
-		wikipedia.output(u'NOTE: You have unread messages on %s' % self)
-		wikipedia.crash()
-"""	
+		print "Source not updated"	
 #adds certain text to a log page
 #syntax: leogktm.log(pagecreated, logpage, newtext)
 #input newtext as a variable
@@ -67,12 +54,6 @@ def log(page, log, newtext):
 	logpage.put(newtext, summary)
 	print "Done adding " + page + " to log."
 
-#quick prompt
-#syntax: legoktm.prompt("variable")
-def prompt(var):
-	varname = var
-	var = raw_input("Please insert a value for " + varname + ". ")
-	print "You entered " + var + " for" + varname + "."
 #converts number to month
 #needs to use a variable
 #syntax: legoktm.month(var, newvar)
@@ -116,13 +97,6 @@ def pagecheck(name):
 	else:
 		print name + "does not exist."
 	return name
-def checktalk():
-	site = wikipedia.getSite()
-	page = wikipedia.Page(site, "Main Page").get()
-	if '<div class="usermessage">' in page:
-		print "You have new messages on your talkpage!"
-		wikipedia.stopme()
-		quit()
 #unicodify	
 def unicodify(text):
     if not isinstance(text, unicode):
@@ -133,14 +107,14 @@ def wikilink(link):
 	return link
 def delink(link):
 	import re
-	link = re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', link)
+	link = re.compile(r'\[\[(.*?)\]\]', re.IGNORECASE).sub(r'\1', str(link))
 	return link
 def templink(link):
 	link = '{{' + link + '}}'
 	return link
 def delinktemp(link):
 	import re
-	link = re.compile(r'\{\{(.*?)\}\}', re.IGNORECASE).sub(r'\1', link)
+	link = re.compile(r'\{\{(.*?)\}\}', re.IGNORECASE).sub(r'\1', str(link))
 	return link
 def addsection(page, content, summary):
 	site = wikipedia.getSite()
@@ -154,6 +128,7 @@ def addsection(page, content, summary):
 		page.put(text, summary, minorEdit=False)
 	except wikipedia.IsRedirectPage:
 		return
-	except:
+	except, e:
 		print "ERROR: Except was raised during writing"
-		quit()
+		print e
+		sys.exit()
