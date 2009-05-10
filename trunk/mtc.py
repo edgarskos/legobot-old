@@ -48,7 +48,7 @@ def ch2(name):
 		'language'    : 'en',
 		'image'       : name.titleWithoutNamespace(),
 		'project'     : 'wikipedia',
-		'username'    : 'Legoktm',
+		'username'    : 'Legobot',
 		'doit'        : 'Get_text',
 		}
 	print 'The parameters are:\n%s' %(str(params))

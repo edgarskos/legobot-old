@@ -4,8 +4,9 @@ import os, sys, re
 __version__ = '$Id$'
 reload(sys)
 sys.setdefaultencoding('utf-8')
-sys.path.append(os.environ['HOME'] + '/projects/pywikibot')
-from pywikibot import wiki, catlib, pagegen
+sys.path.append(os.environ['HOME'] + '/pythonwikibot')
+import wiki
+from wiki import catlib, pagegen
 def API(params):
 	return wiki.API.query(params)
 def unicodify(text):
