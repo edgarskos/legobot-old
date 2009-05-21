@@ -56,7 +56,7 @@ def probreport(logtext):
 	list = re.findall('WARN - problem report generated for (.*?)\n', logtext)
 	content =''
 	for i in list:
-		content += '<li><a href="http://en.wikipedia.org/wiki/Wikipedia:%s/Article alerts">Wikipedia:%s/Article alerts</a></li>' %(i, i)
+		content += '<li><a href="http://en.wikipedia.org/wiki/Wikipedia:%s/Article alerts">Wikipedia:%s/Article alerts</a></li>' %(i.replace(' ','_'), i)
 	if len(content) == 0:
 		return '<li>No problem reports generated</li>'
 	else:
