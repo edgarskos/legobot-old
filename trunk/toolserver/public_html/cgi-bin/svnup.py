@@ -28,7 +28,7 @@ page = monobook2.Page('SVN Updater', '/~legoktm/cgi-bin/svnup.py')
 def fullcontent(content):
     global page
     print page.top()
-    print page.content(content)
+    print page.body(content)
     print page.footer()
 
 username = page.getValue('username')
