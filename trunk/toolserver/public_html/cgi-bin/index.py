@@ -8,6 +8,8 @@ content = """\
 <h1>Bots running here</h1>
 <ul>
 <li><a href="http://en.wikipedia.org/wiki/User:Legobot">Legobot</a></li>
+<li><a href="http://en.wikipedia.org/wiki/User:Legobot II">Legobot II</a></li>
+<li><a href="http://en.wikipedia.org/wiki/User:Legobot III">Legobot III</a></li>
 <li><a href="http://en.wikipedia.org/wiki/User:ArticleAlertbot">ArticleAlertbot</a></li>
 </ul>
 <h1>Tools</h1>
