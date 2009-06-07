@@ -100,8 +100,6 @@ def createtemp(url, notemp = False):
 
 
 input_content = """\
-<h2>Template filler</h2>
-<br />
 <form name="input" action="/~legoktm/cgi-bin/reflinks.py" method="get">
 
 URL: <input type="text" name="url">

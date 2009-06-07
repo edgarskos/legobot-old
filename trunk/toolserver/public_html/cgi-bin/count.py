@@ -36,7 +36,6 @@ if username:
     print editcount
 else:
     content = """\
-<h2>Raw Edit counter</h2>
 <form name="input" action="/~legoktm/cgi-bin/count.py" method="get">
 
 Username: <input type="text" name="username">
