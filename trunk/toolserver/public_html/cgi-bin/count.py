@@ -12,9 +12,10 @@ def count(username, wiki, database):
     db = MySQLdb.connect(db=wiki, host="sql-%s" %(database), read_default_file="/home/legoktm/.my.cnf")
     cur = db.cursor()
     cur.execute("SELECT user_editcount FROM user WHERE user_name = '%s';" %(username))
-    query = cur.fetchall()[0][0]
+    query = cur.fetchall()
+    res = query[0][0]
     cur.close()
-    return query
+    return res
 
 
 def getdb(wiki):
