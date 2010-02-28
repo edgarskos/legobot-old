@@ -16,7 +16,7 @@ where ((`p`.`pl_namespace` = `pg`.`page_namespace`) and (`p`.`pl_title` = `pg`.`
 and (`p`.`pl_namespace` = 0))
 group by `p`.`pl_namespace`,`p`.`pl_title`) `a`
 where (`a`.`kiekis` > 10)
-order by `a`.`kiekis` desc);
+order by `a`.`kiekis` desc); /*SLOW_OK*/
 """)
 query = cur.fetchall()
 content = ''
