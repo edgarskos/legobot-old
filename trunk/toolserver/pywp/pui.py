@@ -4,8 +4,8 @@
 #
 # (C) Legoktm 2008-2010, MIT License
 # 
- 
 import re, sys, os
+sys.path.append(os.environ['HOME'] + '/pywikipedia')
 import wikipedia as wiki
 site=wiki.getSite()
 page = wiki.Page(site,'Wikipedia:Possibly unfree files')
