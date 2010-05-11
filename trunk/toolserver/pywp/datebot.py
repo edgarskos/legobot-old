@@ -14,7 +14,7 @@ import os
 sys.path.append(os.environ['HOME'] + '/pywikipedia')
 import wikipedia as wiki
 import pagegenerators as pagegen
-
+import catlib
 # Define global constants
 readDelay  = 20	# seconds
 writeDelay = 60 # seconds
@@ -110,7 +110,7 @@ def process_article(page):
 		print 'Skipping ' + page.title() + ' due to no changes made after state point.'
 		log_error(page)
 def docat(cat2):
-	gen = pagegen.CategorizedPageGenerator(wiki.Page(site,'Category:' + cat2))
+	gen = pagegen.CategorizedPageGenerator(catlib.Category(wiki.Page(site,'Category:' + cat2)))
 	for page in gen:
 		if page.namespace() == 0:
 			try:
