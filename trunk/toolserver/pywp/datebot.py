@@ -11,6 +11,7 @@ Syntax: python datebot.py
 __version__ = '$Id$'
 import re, sys, time
 import os
+sys.path.append(os.environ['HOME'] + '/pywikipedia')
 import wikipedia as wiki
 import pagegenerators as pagegen
 
