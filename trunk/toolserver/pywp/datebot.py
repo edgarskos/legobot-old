@@ -116,11 +116,7 @@ def process_article(page):
 		print 'Skipping ' + page.title() + ' due to no changes made after state point.'
 		log_error(page)
 def docat(cat2):
-	pg = wiki.Page(site,cat2)
-	print pg
-	print type(pg)
 	category = catlib.Category(site, cat2)
-	print 'Fetching Category:' + cat2
  	gen = pagegen.CategorizedPageGenerator(category)
 	for page in gen:
 		if page.namespace() == 0:
