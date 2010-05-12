@@ -11,10 +11,11 @@ Syntax: python datebot.py
 __version__ = '$Id$'
 import re, sys, time
 import os
-sys.path.append(os.environ['HOME'] + '/pywikipedia')
+sys.path.append(os.environ['HOME'] + '/legobot2')
 import wikipedia as wiki
 import pagegenerators as pagegen
 import catlib
+import timedate
 # Define global constants
 readDelay  = 20	# seconds
 writeDelay = 60 # seconds
@@ -91,7 +92,7 @@ def process_article(page):
 	wikitext = re.compile(r'\{\{\s*primary sources\}\}', re.IGNORECASE).sub(r'{{Primary sources|date={{subst:CURRENTMONTHNAME}} {{subst:CURRENTYEAR}}}}', wikitext)
 	wikitext = wikitext.replace('{{subst:CURRENTMONTHNAME}}', month_name)
 	wikitext = wikitext.replace('{{subst:CURRENTYEAR}}', year)
-	EditMsg = "Date maintenance tags"
+	EditMsg = "[[WP:BOT|BOT]]: Date maintenance tags"
 	if state1 != state0:
 		EditMsg = EditMsg + " and general fixes"
 	# If the text has changed at all since the state point, upload it
@@ -110,7 +111,12 @@ def process_article(page):
 		print 'Skipping ' + page.title() + ' due to no changes made after state point.'
 		log_error(page)
 def docat(cat2):
-	gen = pagegen.CategorizedPageGenerator(catlib.Category(wiki.Page(site,'Category:' + cat2)))
+	pg = wiki.Page(site,cat2)
+	print pg
+	print type(pg)
+	category = catlib.Category(site, cat2)
+	print 'Fetching Category:' + cat2
+ 	gen = pagegen.CategorizedPageGenerator(category)
 	for page in gen:
 		if page.namespace() == 0:
 			try:
@@ -124,19 +130,19 @@ def docat(cat2):
 			log_error(page)
 	print 'Done with Category:%s' %(cat2)
 def main():
-	docat("Articles with unsourced statements")
-	docat("Articles that need to be wikified")
-	docat("Orphaned articles")
-	docat("Category needed")
-	docat("Uncategorized stubs")
-	docat("Wikipedia cleanup")
-	docat("Articles lacking sources")
-	docat("Articles to be expanded")
-	docat("Articles with topics of unclear notability")
-#	docat("Articles to be merged")
-	docat("Wikipedia articles needing copy edit")
-	docat("Articles needing additional references")
-	docat("Articles lacking reliable references")
+	docat(u"Articles with unsourced statements")
+	docat(u"Articles that need to be wikified")
+	docat(u"Orphaned articles")
+	docat(u"Category needed")
+	docat(u"Uncategorized stubs")
+	docat(u"Wikipedia cleanup")
+	docat(u"Articles lacking sources")
+	docat(u"Articles to be expanded")
+	docat(u"Articles with topics of unclear notability")
+#	docat(u"Articles to be merged")
+	docat(u"Wikipedia articles needing copy edit")
+	docat(u"Articles needing additional references")
+	docat(u"Articles lacking reliable references")
 	print 'Done'
 	
 if __name__ == "__main__":
