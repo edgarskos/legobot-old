@@ -37,26 +37,31 @@ def log_error(page,disp_only=False):
 	disp_only should be true when only wanting to view the list, not add anything to it.
 		Then page should be just set to 0 (ex use: log_error(page=0,disp_only=True) )
 	"""
-	if not disp_only:
-		print 'Logging error on ' + page.title()
-		try:
-			f1 = open(logfile, 'r')
-			old = f1.read()
-			f1.close()
-		except IOError:
-			old = ""
-		new = old + '\n' + page.title()
-		f2 = open(logfile, 'w')
-		f2.write(new)
-		f2.close()
-	else:
-		try:
-			f1 = open(logfile, 'r')
-			txt = f1.read()
-			f1.close()
-		except IOError:
-			txt = "Log is non-existent."	
-		print txt
+	try:
+		if not disp_only:
+			print 'Logging error on ' + page.title()
+			try:
+				f1 = open(logfile, 'r')
+				old = f1.read()
+				f1.close()
+			except IOError:
+				old = ""
+			new = old + '\n' + page.title()
+			f2 = open(logfile, 'w')
+			f2.write(new)
+			f2.close()
+		else:
+			try:
+				f1 = open(logfile, 'r')
+				txt = f1.read()
+				f1.close()
+			except IOError:
+				txt = "Log is non-existent."	
+			print txt
+	except UnicodeEncodeError:
+		return #fail silently
+	except UnicodeDecodeError:
+		return #fail silently
 def process_article(page):
 	month_name = timedate.monthname(timedate.currentmonth())
 	year = str(timedate.currentyear())
