@@ -46,47 +46,28 @@ def __convert_timestamp(seconds):
     seconds = seconds % 60
     return '%sh %sm %ss' % (hours, minutes, seconds)
 
+
+def repfuncs(db, sx):
+	import MySQLdb
+	dbs = MySQLdb.connect(db=db, host='sql-'+sx,read_default_file="/home/legoktm/.my.cnf")
+	cur = dbs.cursor()
+	cur.execute("""SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(rc_timestamp) FROM recentchanges ORDER BY rc_timestamp DESC LIMIT 1;""")
+	res = cur.fetchall()
+	ans = __getans(res)
+	set = __getcolor(ans)
+	return "\n<tr style='background-color: "+set[0]+"'><td style='width: 25%; padding-left: 1em;'>"+sx+"</td><td>"+__convert_timestamp(set[1])+"</td></tr>"
+	
 def replagtable():
-    import MySQLdb
-    dbs1 = MySQLdb.connect(db='enwiki_p', host="sql-s1", read_default_file="/home/legoktm/.my.cnf")
-    dbs2 = MySQLdb.connect(db='itwiki_p', host="sql-s2", read_default_file="/home/legoktm/.my.cnf")
-    dbs3 = MySQLdb.connect(db='frwiki_p', host="sql-s3", read_default_file="/home/legoktm/.my.cnf")
-    dbs4 = MySQLdb.connect(db='commonswiki_p', host="sql-s4", read_default_file="/home/legoktm/.my.cnf")
-    dbs5 = MySQLdb.connect(db='dewiki_p', host="sql-s5", read_default_file="/home/legoktm/.my.cnf")
-    cur1 = dbs1.cursor()
-    cur2 = dbs2.cursor()
-    cur3 = dbs3.cursor()
-    cur4 = dbs4.cursor()
-    cur5 = dbs5.cursor()
-    cur1.execute("""SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(rc_timestamp) FROM recentchanges ORDER BY rc_timestamp DESC LIMIT 1;""")
-    cur2.execute("""SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(rc_timestamp) FROM recentchanges ORDER BY rc_timestamp DESC LIMIT 1;""")
-    cur3.execute("""SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(rc_timestamp) FROM recentchanges ORDER BY rc_timestamp DESC LIMIT 1;""")
-    cur4.execute("""SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(rc_timestamp) FROM recentchanges ORDER BY rc_timestamp DESC LIMIT 1;""")
-    cur5.execute("""SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(rc_timestamp) FROM recentchanges ORDER BY rc_timestamp DESC LIMIT 1;""")
-    res1 = cur1.fetchall()
-    res2 = cur2.fetchall()
-    res3 = cur3.fetchall()
-    res4 = cur4.fetchall()
-    res5 = cur5.fetchall()
-    ans1 = __getans(res1)
-    ans2 = __getans(res2)
-    ans3 = __getans(res3)
-    ans4 = __getans(res4)
-    ans5 = __getans(res5)
-    set1 = __getcolor(ans1)
-    set2 = __getcolor(ans2)
-    set3 = __getcolor(ans3)
-    set4 = __getcolor(ans4)
-    set5 = __getcolor(ans5)
     z= '\n<table style="width: 100%; border-collapse: collapse;">\n'
-    a= "\n<tr style='background-color: "+set1[0]+"'><td style='width: 25%; padding-left: 1em;'>s1</td><td>"+__convert_timestamp(set1[1])+"</td></tr>"
-    b= "\n<tr style='background-color: "+set2[0]+"'><td style='width: 25%; padding-left: 1em;'>s2</td><td>"+__convert_timestamp(set2[1])+"</td></tr>"
-    c= "\n<tr style='background-color: "+set3[0]+"'><td style='width: 25%; padding-left: 1em;'>s3</td><td>"+__convert_timestamp(set3[1])+"</td></tr>"
-    d= "\n<tr style='background-color: "+set4[0]+"'><td style='width: 25%; padding-left: 1em;'>s4</td><td>"+__convert_timestamp(set4[1])+"</td></tr>"
-    e= "\n<tr style='background-color: "+set5[0]+"'><td style='width: 25%; padding-left: 1em;'>s5</td><td>"+__convert_timestamp(set5[1])+"</td></tr>"
-    f= '\n</table>'
+    a= repfuncs('enwiki_p','s1')
+    b= repfuncs('enwiktionary_p','s2')
+    c= repfuncs('frwiktionary_p','s3')
+    d= repfuncs('commonswiki_p','s4')
+    e= repfuncs('dewiki_p','s5')
+	f= repfuncs('frwiki_p','s6')
+	g= '\n</table>'
 #    f= '\n</div></div>'
-    return z+a+b+c+d+e+f #+f
+    return z+a+b+c+d+e+f+g #+f
     
 def body(content):
     a= """\n<body class="mediawiki"><div id="globalWrapper"><div id="column-content"><div id="content">\n"""
