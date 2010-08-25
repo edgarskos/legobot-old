@@ -64,8 +64,8 @@ def replagtable():
     c= repfuncs('frwiktionary_p','s3')
     d= repfuncs('commonswiki_p','s4')
     e= repfuncs('dewiki_p','s5')
-	f= repfuncs('frwiki_p','s6')
-	g= '\n</table>'
+    f= repfuncs('frwiki_p','s6')
+    g= '\n</table>'
 #    f= '\n</div></div>'
     return z+a+b+c+d+e+f+g #+f
     
