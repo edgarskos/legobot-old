@@ -46,7 +46,7 @@ def log_error(page,disp_only=False):
 				f1.close()
 			except IOError:
 				old = ""
-			new = old + '\n' + page.title()
+			new = old + '\n[[' + page.title() + ']]'
 			f2 = open(logfile, 'w')
 			f2.write(new)
 			f2.close()
