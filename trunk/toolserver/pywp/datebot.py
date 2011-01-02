@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8  -*-
+# (C) Legoktm 2008-2011, MIT License
+
 """
 This script is a clone of [[en:User:SmackBot]]
 Syntax: python datebot.py

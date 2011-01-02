@@ -1,4 +1,6 @@
 #!usr/bin/python
+# (C) Legoktm 2008-2011, MIT License
+
 print "Content-Type: text/html\n"
 import cgitb; cgitb.enable()
 import BeautifulSoup as BS, monobook

@@ -1,5 +1,6 @@
 #!usr/bin/python
 #-*- coding:utf-8 -*-
+# (C) Legoktm 2008-2011, MIT License
 __version__ = '$Id$'
 import re, time, sys, os
 sys.path.append(os.environ['HOME'] + '/pythonwikibot')

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """
 
-(C) Legoktm, 2008-2009
+(C) Legoktm, 2008-2011
 
  Distributed under the terms of the MIT license.
 

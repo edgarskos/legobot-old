@@ -5,7 +5,7 @@ Reame: TODO
 """
 #
 # Original Code by Compwhizii and Betacommand, 2008
-# Modified by Legoktm 2009 
+# Modified by Legoktm 2009-2011
 # Distributed under the terms of the MIT license.
 #
 __version__ = '$Id: $'

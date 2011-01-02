@@ -1,5 +1,5 @@
 #
-# (C) Legoktm 2008-2009, MIT License
+# (C) Legoktm 2008-2011, MIT License
 # 
 import urllib
 data = urllib.urlencode({"wiki" : "en.wikipedia.org", "title" : "Main Page"})

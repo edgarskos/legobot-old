@@ -1,5 +1,7 @@
 #!usr/bin/python
 # -*- coding: utf-8  -*-
+# (C) Legoktm 2008-2011, MIT License
+
 import os, sys, re
 __version__ = '$Id$'
 sys.path.append(os.environ['HOME'] + '/pyenwiki')

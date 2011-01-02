@@ -1,6 +1,6 @@
 #!usr/bin/env python
 #
-# (C) Legoktm 2008-2009, MIT License
+# (C) Legoktm 2008-2011, MIT License
 # 
 import time, sys, os, re
 from commands import getoutput

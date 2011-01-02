@@ -1,4 +1,5 @@
 #!usr/bin/python
+# (C) Legoktm 2008-2011, MIT License
 import cgitb; cgitb.enable()
 import urllib2, simplejson
 import monobook2

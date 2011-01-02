@@ -1,4 +1,6 @@
 #!usr/bin/python
+# (C) Legoktm 2008-2011, MIT License
+
 import time, datetime
 """
 Not to be run as a file

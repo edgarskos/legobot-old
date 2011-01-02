@@ -1,6 +1,6 @@
 #!usr/bin/python
 #
-# (C) Legoktm 2008-2009, MIT License
+# (C) Legoktm 2008-2011, MIT License
 #
 import wikipedia, pagegenerators, catlib
 import re, sys

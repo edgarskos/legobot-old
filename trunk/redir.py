@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8  -*-
 #
-# (C) Compwhizii, Legoktm, 2008-2009
+# (C) Compwhizii, Legoktm, 2008-2011
 # Original code at [[User:John Bot II/Code]]
 # Modified by Legoktm
 #

@@ -2,7 +2,7 @@
 # -*- coding: utf-8  -*
  
 #
-# (C) Legoktm 2008-2010, MIT License
+# (C) Legoktm 2008-2011, MIT License
 # 
 import re, sys, os
 sys.path.append(os.environ['HOME'] + '/pywikipedia')

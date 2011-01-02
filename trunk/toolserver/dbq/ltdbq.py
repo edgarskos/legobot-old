@@ -1,6 +1,6 @@
 #!usr/bin/env python
 #
-# (C) Legoktm 2008-2009, MIT License
+# (C) Legoktm 2008-2011, MIT License
 # 
 import MySQLdb
 db = MySQLdb.connect(db='ltwiktionary_p', host="sql-s3", read_default_file="/home/legoktm/.my.cnf")

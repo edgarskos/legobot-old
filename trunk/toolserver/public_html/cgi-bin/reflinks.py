@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# (C) Legoktm 2008-2009, MIT License
+# (C) Legoktm 2008-2011, MIT License
 # 
 import cgitb; cgitb.enable()
 import cgi, sys, urllib2, re, time
