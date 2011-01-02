@@ -80,7 +80,7 @@ def hockeyref(name):
 	print firstn
 	lastn = name[1]
 	print lastn
-	url = lastn[0] + "/" + lastn[0] + lastn[1] + lastn[2] + lastn[3] + lastn[4] + firstn[0] + firstn[1]
+	url = lastn[0] + "/" + lastn[0:4] + firstn[0:1]
 	url = url.lower()
 	return url
 
@@ -192,7 +192,7 @@ def nhlshort(team):
 		team = "San Jose Sharks"
 	else:
 		print 'You entered an invalid choice.'
-		quit()
+		raise
 	return team	
 		
 def formerteams(var):
