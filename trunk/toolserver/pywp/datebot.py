@@ -7,9 +7,6 @@ This script is a clone of [[en:User:SmackBot]]
 Syntax: python datebot.py
 """
 
-#
-# (C) Legoktm 2008-2009, MIT License
-# 
 __version__ = '$Id$'
 import re, sys, time
 import os
