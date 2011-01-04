@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8  -*-
 #
 # (C) Legoktm 2008-2011, MIT License
 # 
