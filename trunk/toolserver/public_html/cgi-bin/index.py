@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8  -*-
 #
 # (C) Legoktm 2008-2011, MIT License
 # 
@@ -10,7 +11,7 @@ content = """\
 <li><a href="http://en.wikipedia.org/wiki/User:Legobot">Legobot</a></li>
 <li><a href="http://en.wikipedia.org/wiki/User:Legobot II">Legobot II</a></li>
 <li><a href="http://en.wikipedia.org/wiki/User:Legobot III">Legobot III</a></li>
-<li><i><a href="http://en.wikipedia.org/wiki/User:ArticleAlertbot">ArticleAlertbot</a> Ð Inactive</i></li>
+<li><i><a href="http://en.wikipedia.org/wiki/User:ArticleAlertbot">ArticleAlertbot</a> -- <i>Inactive</i></li>
 </ul>
 <h1>Tools</h1>
 <ul>
