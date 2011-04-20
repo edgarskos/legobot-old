@@ -6,7 +6,7 @@
 
  Distributed under the terms of the MIT license.
 
-__version__ = '$Id: $'
+__version__ = '$Id$'
 
 This script creates stubs for NHL players and talk pages
 

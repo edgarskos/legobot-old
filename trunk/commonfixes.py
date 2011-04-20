@@ -23,7 +23,7 @@
 # http://www.nationaltrust.org/magazine/archives/arc_news_2007/010807.htm
 # http://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1186&context=theses
 """
-__version__='$Id: selflink.py 4187 2007-09-03 11:37:19Z wikipedian $'
+__version__='$Id$'
 import re
 try:
 	import noreferences

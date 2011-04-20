@@ -8,7 +8,7 @@ Reame: TODO
 # Modified by Legoktm 2009-2011
 # Distributed under the terms of the MIT license.
 #
-__version__ = '$Id: $'
+__version__ = '$Id$'
 #
 import re, sys, os
 sys.path.append(os.environ['HOME'] + '/pyenwiki')
