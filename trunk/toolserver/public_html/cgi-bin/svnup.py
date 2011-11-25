@@ -23,41 +23,41 @@ Passcode: <input type="password" name="code"> <i>(Ask Legoktm)</i>
 <input type="submit" value="Run">
 </form>
 """
-page = monobook2.Page('SVN Updater', '/~legoktm/cgi-bin/svnup.py')
 
 def fullcontent(content):
-    global page
+    page = monobook2.Page('SVN Updater', '/~legoktm/cgi-bin/svnup.py')
     print page.top()
     print page.body(content)
     print page.footer()
 
-username = page.getValue('username')
-if username:
-    code = page.getValue('code')
-    import passcode
-    if code == passcode.code:
-        #remove the pass code
-        passcode = ''
-        del passcode
-        run = True
-        execute = getoutput('svn up /home/legoktm')
-        execute2 = getoutput('svn up /home/legoktm/pythonwikibot')
-        execute1 = getoutput('cd /home/legoktm/pythonwikibot/wiki; python generate_docs.py')
-#        newcont = execute.replace('.py','.py<br />')
-        newcont = execute.replace('\n','<br />')
-        newcont1 = execute1.replace('\n','<br />')
-        newcont2 = execute2.replace('\n','<br />')
-        content = """\
-        <h2>Result</h2><br />
-        %s
-        """ %(newcont+'\n'+newcont1+'\n'+newcont2)
-        fullcontent(content)
-    else:
-        content = """\
-        <h2>Error</h2>
-        Incorrect Password.
-        """
-        fullcontent(content)
-        sys.exit()
-else:
-    fullcontent(input_content)
+def main()"
+	username = page.getValue('username')
+	if username:
+		code = page.getValue('code')
+		import passcode
+		if code == passcode.code:
+			#remove the pass code
+			passcode = ''
+			del passcode
+			run = True
+			execute = getoutput('svn up /home/legoktm') + '\n'
+			execute += getoutput('svn up /home/legoktm/pythonwikibot') + '\n'
+			execute += getoutput('cd /home/legoktm/pythonwikibot/wiki; python generate_docs.py') + '\n'
+			newcont = execute.replace('\n','<br />')
+			content = """\
+			<h2>Result</h2><br />
+			%s
+			""" %(newcont)
+			fullcontent(content)
+		else:
+			content = """\
+			<h2>Error</h2>
+			Incorrect Password.
+			"""
+			fullcontent(content)
+			sys.exit(1)
+	else:
+		fullcontent(input_content)
+
+if __name__ == "__main__":
+	main()
