@@ -154,7 +154,7 @@ class Page:
 		</div>
         <h5>Status</h5>
         <div class='pStatus'>
-            """+monobook.replagtable()+"""
+            """+"""
 	</div>
 
 		</div>
