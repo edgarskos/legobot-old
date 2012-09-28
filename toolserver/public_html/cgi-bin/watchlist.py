@@ -41,7 +41,8 @@ def filter_list(site, list):
             continue
         elif pg.isRedirectPage() and tp.isRedirectPage():
             continue
-        newlist.append(pg.title())
+        else:
+            newlist.append(pg.title())
     return '\n'.join(newlist)
 
 
